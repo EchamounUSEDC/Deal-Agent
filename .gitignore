@@ -9,6 +9,8 @@ build/
 dist/
 .ipynb_checkpoints/
 examples/sample_data/
+scratchpad/
 
 # Generated deliverables (may contain confidential client data) — do not commit
 *.docx
+*.xlsx
