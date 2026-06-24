@@ -15,3 +15,6 @@ examples/sample_data/
 *.xlsx
 *.csv
 Tanglewood_*
+
+# IC toolkit generated outputs
+agents/out/

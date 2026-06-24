@@ -9,6 +9,9 @@ xlrd>=2.0.1              # legacy .xls
 # Geospatial / parcel & land-area analysis
 shapely>=2.0.0          # geometry, areas, centroids, bounds
 
+# IC Agent Toolkit (agents/) charts — monitor + platform agents
+matplotlib>=3.7.0
+
 # Config
 python-dotenv>=1.0.0
 

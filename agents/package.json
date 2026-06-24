@@ -1,0 +1,13 @@
+{
+  "name": "ic-agent-toolkit-generators",
+  "version": "1.0.0",
+  "description": "House-standard IC memo (.docx) + deck (.pptx) generators",
+  "dependencies": {
+    "docx": "^8.5.0",
+    "pptxgenjs": "^3.12.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.0.1",
+    "sharp": "^0.33.0"
+  }
+}
