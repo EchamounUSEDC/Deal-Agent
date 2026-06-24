@@ -12,3 +12,6 @@ examples/sample_data/
 
 # Generated deliverables (may contain confidential client data) — do not commit
 *.docx
+*.xlsx
+*.csv
+Tanglewood_*
