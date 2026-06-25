@@ -74,20 +74,25 @@ Nashville"* and it will drive the benchmarker, screener, and market-fit steps.
 - **Ranking** — all deals with score + verdict; sort by score for the go/no-go ranking list.
 - **Market Ranking** / **Market Data** — the weighted ranking (top markets + a full lookup table).
 
-### Adding any deal — three ways
+### Adding any deal — drop a spreadsheet in
 
-1. **Type it in.** On the Deals tab, find the first empty **New Deal** column (yellow cells),
+1. **Drop a spreadsheet in (the Import button).** Save the workbook as `.xlsm`, import
+   `excel/AddDeal.bas`, and assign the **`ImportProForma`** macro to a button on the Add-a-Deal
+   sheet. Click it, pick a pro forma file — the macro reads the metrics (same keyword extraction
+   as `deal_agent/ic/extract.py`), fills the next free slot, recalculates, and shows the verdict.
+   No typing. (A pro forma rarely names its county cleanly, so you may need to pick the county
+   from the slot's dropdown to complete the market gates.)
+2. **Type it in.** On the Deals tab, find the first empty **New Deal** column (yellow cells),
    pick the **Deal type** and the **Market (county)** from the dropdowns, and enter the
-   economics. The market stats (population, growth, pipeline, rank) **auto-fill from the county
-   via `VLOOKUP`**, and the GO / CONDITIONAL / NO-GO verdict computes immediately off the
-   Springfield & Hamburg statics. The derived fields (is-development, LTV, yield-on-cost) are
-   formulas — you don't enter them.
-2. **One-click button.** Save the workbook as `.xlsm`, import `excel/AddDeal.bas`, and assign
-   the `AddDeal` macro to a button on the Add-a-Deal sheet. Fill the form, click once — it
-   drops the deal into the next free slot, recalculates, and shows the verdict. (Excel can't
-   embed a macro into an `.xlsx`, and this build environment has no Excel to author one, so the
-   button is a 4-step setup; the typed-in path needs no macros.)
-3. **Import a pro forma** with `python -m deal_agent.ic.cli add --proforma X.xlsx --market ...`.
+   economics. Market stats **auto-fill from the county via `VLOOKUP`**; the derived fields
+   (is-development, LTV, yield-on-cost) are formulas you don't enter.
+3. **Import from Python (the tested engine of record).**
+   `python -m deal_agent.ic.cli add --proforma X.xlsx --market "<county>"` — extracts, market-
+   matches, scores, and rebuilds the dashboard with the deal added.
+
+> Excel can't embed a macro into an `.xlsx`, and this build environment has no Excel to author
+> one, so the buttons are a one-time 4-step setup. The typed-in path and the Python importer
+> need no macros. All three decide GO/No-Go off the same Springfield & Hamburg statics.
 
 The dashboard verdicts were validated against the Python engine with a real formula evaluator:
 Springfield → GO (85), Hamburg → GO (78.5); a filled development slot → GO (85); thin-yield and

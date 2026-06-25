@@ -43,6 +43,7 @@ HEADFILL = PatternFill("solid", fgColor=NAVY)
 GREYFILL = PatternFill("solid", fgColor=GREY)
 INPUTFILL = PatternFill("solid", fgColor=INPUT)
 BENCHFILL = PatternFill("solid", fgColor=BENCH)
+GREENFILL = PatternFill("solid", fgColor=GREEN)
 CENTER = Alignment(horizontal="center", vertical="center")
 LEFT = Alignment(horizontal="left", vertical="center", wrap_text=True)
 
@@ -412,18 +413,19 @@ def _build_add_sheet(ad, slot_cols, has_market):
     lines = [
         ("ADD A DEAL", TITLE, HEADFILL),
         ("", None, None),
-        ("Two ways — both decide GO / NO-GO live off the Springfield & Hamburg statics:", B, None),
+        ("★ DROP A SPREADSHEET IN — click the 'Import Pro Forma' button (macro build). Pick a", B, GREENFILL),
+        ("   pro forma file; it reads the metrics, fills the next slot, and shows the verdict.", B, GREENFILL),
+        ("   (Setup once: save as .xlsm, import excel/AddDeal.bas, assign ImportProForma to a button.)", None, None),
+        ("", None, None),
+        ("Other ways — all decide GO / NO-GO live off the Springfield & Hamburg statics:", B, None),
         ("", None, None),
         ("A) Type directly on the Deals tab: find the first empty 'New Deal' column (yellow),", None, None),
         (f"   pick Deal type{cty}, and enter the economics. The market stats auto-fill.", None, None),
-        ("", None, None),
-        ("B) Use the form below, then click the Add Deal button (macro build) — it copies the", None, None),
-        ("   form into the next free slot and jumps to the Dashboard.", None, None),
+        ("B) Fill the form below, then click the Add Deal button — copies it into the next slot.", None, None),
+        ("C) Import from the command line:  python -m deal_agent.ic.cli add --proforma X.xlsx --market \"<county>\"",
+         None, None),
         ("", None, None),
         (f"Ready-to-fill slots: {', '.join(slot_cols)} (Deals tab).", Font(italic=True), GREYFILL),
-        ("", None, None),
-        ("Or import a pro forma:  python -m deal_agent.ic.cli add --proforma NewDeal.xlsx --market \"<county>\"",
-         None, GREYFILL),
     ]
     for i, (txt, font, fill) in enumerate(lines):
         _set(ad, f"A{i+1}", txt, font=font, fill=fill, align=LEFT, border=False)
