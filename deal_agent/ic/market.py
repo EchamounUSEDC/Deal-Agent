@@ -63,17 +63,24 @@ class MarketRanking:
         q = (query or "").strip().lower()
         if not q:
             return None
-        # exact county/city, then substring on county, then substring on CBSA
+        # exact county/city, then substring on county, then CBSA, then state
         for matcher in (
             lambda r: r[COL["county"]].strip().lower() == q,
             lambda r: q in r[COL["county"]].strip().lower(),
+            lambda r: r[COL["county"]].strip().lower().split(",")[0] in q,
             lambda r: q in r[COL["cbsa"]].strip().lower(),
             lambda r: q in r[COL["state"]].strip().lower(),
         ):
             hits = [r for r in self.rows if matcher(r)]
             if hits:
                 return min(hits, key=lambda r: _num(r[COL["rank"]]) or 1e9)
-        return None
+        # fuzzy fallback: closest county or CBSA name (handles typos / partial names)
+        import difflib
+
+        names = {r[COL["county"]].strip().lower(): r for r in self.rows}
+        names.update({r[COL["cbsa"]].strip().lower(): r for r in self.rows})
+        close = difflib.get_close_matches(q, list(names), n=1, cutoff=0.6)
+        return names[close[0]] if close else None
 
     def enrich(self, deal: Deal, query: str | None = None) -> Optional[dict]:
         """Match the deal's market and copy market context onto the Deal in place."""

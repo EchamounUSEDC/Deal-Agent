@@ -54,10 +54,13 @@ def extract_deal(path: str, name: str | None = None) -> tuple[Deal, list[str]]:
     wb = openpyxl.load_workbook(path, data_only=True)
     found: dict[str, float] = {}
     blob = []  # lowercased text of every cell, to classify the archetype
+    market_label = ""
+    _LOC = ("county", "market", "location", "city", "msa", "cbsa", "submarket", "address")
 
     for ws in wb.worksheets:
         for row in ws.iter_rows():
             label = None
+            texts = []   # trailing string cells (for location capture)
             values = []
             for cell in row:
                 v = cell.value
@@ -65,8 +68,13 @@ def extract_deal(path: str, name: str | None = None) -> tuple[Deal, list[str]]:
                     blob.append(v.lower())
                     if label is None and v.strip():
                         label = v.strip().lower()
+                    elif v.strip():
+                        texts.append(v.strip())
                 elif isinstance(v, (int, float)) and not isinstance(v, bool):
                     values.append(v)
+            # capture a market/location label -> the text to its right
+            if not market_label and label and any(k in label for k in _LOC) and texts:
+                market_label = texts[0]
             if not label or not values:
                 continue
             for keywords, field in _PATTERNS:
@@ -85,6 +93,7 @@ def extract_deal(path: str, name: str | None = None) -> tuple[Deal, list[str]]:
     deal_type = DEVELOPMENT if is_dev else INCOME
 
     deal = Deal(name=name or os.path.splitext(os.path.basename(path))[0], deal_type=deal_type)
+    deal.market_label = market_label
     for field, val in found.items():
         setattr(deal, field, val)
 

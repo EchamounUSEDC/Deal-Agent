@@ -76,23 +76,25 @@ Nashville"* and it will drive the benchmarker, screener, and market-fit steps.
 
 ### Adding any deal — drop a spreadsheet in
 
-1. **Drop a spreadsheet in (the Import button).** Save the workbook as `.xlsm`, import
-   `excel/AddDeal.bas`, and assign the **`ImportProForma`** macro to a button on the Add-a-Deal
-   sheet. Click it, pick a pro forma file — the macro reads the metrics (same keyword extraction
-   as `deal_agent/ic/extract.py`), fills the next free slot, recalculates, and shows the verdict.
-   No typing. (A pro forma rarely names its county cleanly, so you may need to pick the county
-   from the slot's dropdown to complete the market gates.)
-2. **Type it in.** On the Deals tab, find the first empty **New Deal** column (yellow cells),
+1. **Double-click launcher (no macros, no command line).** `launchers/Import Deal.command`
+   (macOS/Linux) or `launchers/Import Deal.bat` (Windows). Double-click it for a file picker,
+   or **drag a pro forma onto it**. It extracts the metrics, **auto-detects the market**
+   (fuzzy-matched to the ranking), scores the deal, adds it to `IC_GoNoGo_Dashboard.xlsx`, and
+   opens it. Needs Python 3 + this repo + `ic_data/` populated.
+2. **In-Excel Import button.** Save the workbook as `.xlsm`, import `excel/AddDeal.bas`, and
+   assign the **`ImportProForma`** macro to a button. Click it, pick a pro forma — same
+   extraction, all inside Excel, no Python.
+3. **Type it in.** On the Deals tab, find the first empty **New Deal** column (yellow cells),
    pick the **Deal type** and the **Market (county)** from the dropdowns, and enter the
-   economics. Market stats **auto-fill from the county via `VLOOKUP`**; the derived fields
-   (is-development, LTV, yield-on-cost) are formulas you don't enter.
-3. **Import from Python (the tested engine of record).**
-   `python -m deal_agent.ic.cli add --proforma X.xlsx --market "<county>"` — extracts, market-
-   matches, scores, and rebuilds the dashboard with the deal added.
+   economics. Market stats **auto-fill from the county via `VLOOKUP`**.
+4. **Python one-liner (the tested engine of record).**
+   `python -m deal_agent.ic.cli add --proforma X.xlsx --market "<county>"`.
 
-> Excel can't embed a macro into an `.xlsx`, and this build environment has no Excel to author
-> one, so the buttons are a one-time 4-step setup. The typed-in path and the Python importer
-> need no macros. All three decide GO/No-Go off the same Springfield & Hamburg statics.
+> If a pro forma names its market (a "County"/"Market"/"Location" cell), the market is matched
+> automatically; otherwise the deal still imports — pick the county from the slot's dropdown to
+> complete the market gates. Excel can't embed a macro into an `.xlsx`, so option 2's button is
+> a one-time setup; options 1, 3, and 4 need no macros. All decide GO/No-Go off the same
+> Springfield & Hamburg statics.
 
 The dashboard verdicts were validated against the Python engine with a real formula evaluator:
 Springfield → GO (85), Hamburg → GO (78.5); a filled development slot → GO (85); thin-yield and
