@@ -13,6 +13,28 @@ parcel/land areas**, and **formulate a deal** with the company that owns the ass
 Built on the **Claude Agent SDK** (`claude-opus-4-8`, adaptive thinking). See
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 
+## Investment-Committee Go/No-Go
+
+A second four-agent layer scores a **candidate self-storage deal** against two *proven winners*
+— **Springfield** (income/core DST) and **Hamburg** (ground-up development) — and the firm's
+~246-market ranking, then returns a **GO / CONDITIONAL GO / NO-GO** verdict. It ships with a
+self-contained **live Excel dashboard**: pick a deal from a dropdown and the verdict, the
+side-by-side vs the winners, and every gate score recalculate instantly (no API key needed).
+
+| Agent | Does |
+|-------|------|
+| 📊 **deal-benchmarker** | Extracts a candidate's metrics; classifies income/core vs development |
+| ✅ **deal-screener** | Runs the hard methodology gates → pass/fail with reasons |
+| 🗺️ **market-fit-analyst** | Matches the deal's market to the weighted market ranking |
+| 🧭 **ic-verdict** | Synthesizes GO/NO-GO with pros, cons, and the "why it works" story |
+
+```bash
+python -m deal_agent.ic.cli evaluate --proforma NewDeal.xlsx --market "Nashville, Tennessee"
+python -m deal_agent.ic.cli add      --proforma NewDeal.xlsx --market "Nashville, Tennessee"  # -> dashboard
+```
+
+Full design, gates, and the proven-winner profiles: [`docs/IC_GO_NO_GO.md`](docs/IC_GO_NO_GO.md).
+
 ## Install
 
 ```bash

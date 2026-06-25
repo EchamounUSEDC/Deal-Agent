@@ -15,3 +15,7 @@ examples/sample_data/
 *.xlsx
 *.csv
 Tanglewood_*
+
+# IC engine: real benchmark economics & saved candidates stay local (example is committed)
+ic_data/benchmarks.json
+ic_data/candidates.json

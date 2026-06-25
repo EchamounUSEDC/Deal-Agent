@@ -9,12 +9,6 @@ Agents:
 """
 
 from .config import settings
-from .agents import (
-    build_financial_analyst,
-    build_land_surveyor,
-    build_deal_strategist,
-    build_orchestrator,
-)
 
 __all__ = [
     "settings",
@@ -23,3 +17,20 @@ __all__ = [
     "build_deal_strategist",
     "build_orchestrator",
 ]
+
+# Agent builders are imported lazily: they pull in the Anthropic SDK, which the
+# self-contained IC Go/No-Go engine (deal_agent.ic) does not need.
+_AGENT_BUILDERS = {
+    "build_financial_analyst",
+    "build_land_surveyor",
+    "build_deal_strategist",
+    "build_orchestrator",
+}
+
+
+def __getattr__(name: str):
+    if name in _AGENT_BUILDERS:
+        from . import agents
+
+        return getattr(agents, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
