@@ -59,6 +59,16 @@ def test_ranking_orders_go_before_no_go():
     assert verdicts[-1].decision == "NO-GO"
 
 
+def test_library_resolves_and_answers():
+    from deal_agent.gonogo.library import answer, load_library, resolve
+
+    lib = load_library()  # benchmarks always present even with no deal files
+    assert resolve("is Hamburg a go or no go?", lib).decision == "GO"
+    assert resolve("Lewiston", lib) is not None
+    assert "GO" in answer("is the hamburg deal a go?", lib)
+    assert resolve("nonexistent-xyz", lib) is None
+
+
 def _run() -> int:
     tests = [v for k, v in globals().items() if k.startswith("test_")]
     failed = 0

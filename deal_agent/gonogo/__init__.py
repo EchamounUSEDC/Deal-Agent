@@ -19,6 +19,7 @@ Public API:
 
 from .benchmarks import BENCHMARKS, Benchmark, THRESHOLDS
 from .engine import Verdict, score_deal
+from .library import answer, load_library, resolve
 from .metrics import DealMetrics, extract_deals
 from .ranker import rank_deals, rank_files, write_ranking_workbook
 
@@ -46,6 +47,9 @@ __all__ = [
     "rank_deals",
     "rank_files",
     "write_ranking_workbook",
+    "answer",
+    "resolve",
+    "load_library",
     "build_gonogo_committee",
     "build_committee_chair",
     "build_benchmark_curator",

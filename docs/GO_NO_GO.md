@@ -90,6 +90,52 @@ placeholder. To use your actual Lewiston deal, edit the `LEWISTON` block in
 `deal_agent/gonogo/benchmarks.py`. To move the bar, edit `THRESHOLDS` in the same
 file — every score and verdict recomputes from it.
 
+## Ask a question — live answers (in Excel or the terminal)
+
+Instead of reading a frozen table, you can *ask* for a verdict and have it
+generated live from the current data.
+
+**In the terminal:**
+
+```bash
+python -m deal_agent.gonogo ask "is Hamburg a go or no go?"
+python -m deal_agent.gonogo ask "TX" --files dev_model_11_markets.xlsx
+```
+
+**In Excel** (live worksheet functions via the `xlwings` add-in):
+
+```
+=GONOGO_ASK("is Hamburg a go?")   -> Hamburg: GO (100/100). ...
+=GONOGO("TX")                     -> GO
+=GONOGO_SCORE("Springfield")      -> 16
+=GONOGO_WHY("NE")                 -> NO-GO — fails the IRR floor ...
+=GONOGO_BENCHMARK("Hamburg","dev_spread_bps") -> 190
+```
+
+Generate a ready-to-use workbook (works as a static snapshot immediately; the
+cells go live once xlwings is wired up — see its **Setup** tab):
+
+```bash
+python -m deal_agent.gonogo workbook --out GoNoGo_Live.xlsx
+```
+
+Setup for live cells: `pip install "xlwings>=0.30"`, `xlwings addin install`, then
+in Excel's xlwings ribbon set **UDF Modules** to `deal_agent.gonogo.excel` and
+click **Import Functions**.
+
+### Where the live data comes from
+
+`GONOGO_ASK` / `GONOGO` resolve a name (or a whole question) to a deal in the
+**deal library**, which is rebuilt on every call from:
+
+- the benchmark deals (Hamburg, Lewiston), plus
+- every deal in the files named by the `GONOGO_DEAL_FILES` env var (comma/
+  semicolon separated), or dropped into a `./deals` folder.
+
+Because it re-reads on each call, editing the underlying model — or the
+benchmarks — changes the answer immediately. That is the "live" behavior: the
+spreadsheet computes the verdict on demand rather than storing a stale one.
+
 ## Tests
 
 ```bash

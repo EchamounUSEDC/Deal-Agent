@@ -116,6 +116,25 @@ benchmark deals shown as anchor rows), **Score Detail** (per-metric breakdown), 
 **Method & Benchmarks**. How a deal is scored — and how to plug in your real Lewiston
 numbers — is in [`docs/GO_NO_GO.md`](docs/GO_NO_GO.md).
 
+### Ask a question — live answers
+
+Ask for a verdict in plain English and have it generated live from the current data —
+in the terminal or inside Excel:
+
+```bash
+python -m deal_agent.gonogo ask "is Hamburg a go or no go?"   # -> Hamburg: GO (100/100). ...
+python -m deal_agent.gonogo workbook --out GoNoGo_Live.xlsx   # ready-to-use 'Ask' workbook
+```
+
+In Excel (live functions via the `xlwings` add-in — see the workbook's Setup tab):
+
+```
+=GONOGO_ASK("is the TX deal a go?")   =GONOGO("Hamburg")   =GONOGO_WHY("NE")
+```
+
+Point it at your deals with the `GONOGO_DEAL_FILES` env var or a `./deals` folder;
+it re-reads them on every call, so edits to your model change the answer immediately.
+
 ```python
 from deal_agent.gonogo import rank_files, write_ranking_workbook
 verdicts = rank_files(["dev_model_11_markets.xlsx", "new_proforma.xlsx"])

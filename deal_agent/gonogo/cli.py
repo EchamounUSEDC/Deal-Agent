@@ -1,13 +1,20 @@
-"""Go / No-Go CLI — rank deals and auto-decide attached files.
+"""Go / No-Go CLI — rank deals, ask questions, and auto-decide attached files.
 
-Deterministic mode (no API key needed) — attach a file, get a ranking + verdicts
-and a color-coded workbook:
+Ask a plain-English question (live, no API key):
+
+    python -m deal_agent.gonogo ask "is Hamburg a go or no go?"
+    python -m deal_agent.gonogo ask "TX" --files dev_model_11_markets.xlsx
+
+Build the live 'Ask' Excel workbook:
+
+    python -m deal_agent.gonogo workbook --out GoNoGo_Live.xlsx
+
+Rank deals + write the color-coded ranking workbook (no API key):
 
     python -m deal_agent.gonogo --files dev_model_11_markets.xlsx proforma.xlsx
     python -m deal_agent.gonogo --files new_deal.xlsx --out my_ranking.xlsx
 
-Agent mode — the five-agent committee writes a narrative review (needs an
-ANTHROPIC_API_KEY and the Claude Agent SDK):
+Five-agent committee narrative review (needs ANTHROPIC_API_KEY):
 
     python -m deal_agent.gonogo --files new_deal.xlsx --agents
     python -m deal_agent.gonogo --files deal.xlsx --agent underwriter
@@ -16,6 +23,7 @@ ANTHROPIC_API_KEY and the Claude Agent SDK):
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 
 from .ranker import rank_files, write_ranking_workbook
@@ -49,7 +57,40 @@ def _run_agents(which: str, files: list[str]) -> int:
     return 0
 
 
+def _cmd_ask(argv: list[str]) -> int:
+    from .library import answer, load_library
+
+    p = argparse.ArgumentParser(prog="deal-agent-gonogo ask")
+    p.add_argument("question", help='e.g. "is Hamburg a go or no go?"')
+    p.add_argument("--files", nargs="*", default=[], help="Extra deal files to search.")
+    args = p.parse_args(argv)
+    lib = load_library(extra_files=args.files)
+    print(answer(args.question, lib))
+    return 0
+
+
+def _cmd_workbook(argv: list[str]) -> int:
+    from .excel import build_live_workbook
+
+    p = argparse.ArgumentParser(prog="deal-agent-gonogo workbook")
+    p.add_argument("--out", default="GoNoGo_Live.xlsx", help="Output workbook path.")
+    p.add_argument("--files", nargs="*", default=[], help="Deal files to seed the snapshot.")
+    args = p.parse_args(argv)
+    if args.files:
+        os.environ.setdefault("GONOGO_DEAL_FILES", ",".join(args.files))
+    out = build_live_workbook(args.out)
+    print(f"Live 'Ask' workbook written to: {out}")
+    print('Try a question cell:  =GONOGO_ASK("is Hamburg a go?")   (see the Setup tab)')
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "ask":
+        return _cmd_ask(argv[1:])
+    if argv and argv[0] == "workbook":
+        return _cmd_workbook(argv[1:])
+
     p = argparse.ArgumentParser(prog="deal-agent-gonogo", description=__doc__)
     p.add_argument("--files", nargs="+", required=True, help="Deal files (.xlsx/.xls/.csv).")
     p.add_argument("--out", default="go_no_go_ranking.xlsx", help="Output ranking workbook path.")
@@ -62,7 +103,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--no-workbook", action="store_true", help="Skip writing the .xlsx.")
     args = p.parse_args(argv)
 
-    if args.agents or args.agent:
+    if getattr(args, "agents", False) or getattr(args, "agent", None):
         return _run_agents(args.agent or "chair", args.files)
 
     verdicts = rank_files(args.files)
