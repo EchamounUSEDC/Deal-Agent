@@ -82,6 +82,50 @@ The same four roles also ship as Claude Code subagents in `.claude/agents/`. In 
 Code session you can say *"use the deal-orchestrator to evaluate these files"* and it will
 delegate to `financial-analyst`, `land-surveyor`, and `deal-strategist`.
 
+## Go / No-Go ranking (5-agent committee)
+
+A second system, `deal_agent.gonogo`, ranks self-storage deals **GO / CONDITIONAL /
+NO-GO** by comparing each one to the team's two proven deals — **Hamburg** and
+**Lewiston**. Five agents act as an investment committee:
+
+| Agent | Does |
+|-------|------|
+| 🎯 **Benchmark Curator** | Owns the Hamburg/Lewiston bar and the GO/NO-GO thresholds |
+| 📊 **Underwriter** | Extracts a deal's economics and scores them vs the bar |
+| 🌍 **Market Scorer** | Judges market quality (demand, supply, growth) |
+| ⚠️ **Risk Screener** | Hunts hard knockouts and red flags |
+| 🧭 **Committee Chair** | Synthesizes one GO/CONDITIONAL/NO-GO call + ranked list |
+
+A deterministic engine (anchored on the benchmarks) backs the agents, so **attach a
+file → auto Go/No-Go works with no API key**:
+
+```bash
+# Rank deals and write the color-coded ranking workbook
+python -m deal_agent.gonogo --files dev_model_11_markets.xlsx new_proforma.xlsx \
+  --out go_no_go_ranking.xlsx
+
+# Run the five-agent committee for a narrative review (needs ANTHROPIC_API_KEY)
+python -m deal_agent.gonogo --files new_proforma.xlsx --agents
+
+# One specialist only
+python -m deal_agent.gonogo --files new_proforma.xlsx --agent risk
+```
+
+The output workbook has three tabs: **Go-No-Go Ranking** (color-coded, with the
+benchmark deals shown as anchor rows), **Score Detail** (per-metric breakdown), and
+**Method & Benchmarks**. How a deal is scored — and how to plug in your real Lewiston
+numbers — is in [`docs/GO_NO_GO.md`](docs/GO_NO_GO.md).
+
+```python
+from deal_agent.gonogo import rank_files, write_ranking_workbook
+verdicts = rank_files(["dev_model_11_markets.xlsx", "new_proforma.xlsx"])
+write_ranking_workbook(verdicts, "go_no_go_ranking.xlsx")
+for v in verdicts:
+    print(v.decision, round(v.score, 1), v.name)
+```
+
+The same five roles also ship as Claude Code subagents (`.claude/agents/gonogo-*.md`).
+
 ## Configuration
 
 | Env var | Default | Meaning |
