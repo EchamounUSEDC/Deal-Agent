@@ -67,13 +67,31 @@ Nashville"* and it will drive the benchmarker, screener, and market-fit steps.
 - **Dashboard** — pick a deal from the **dropdown**; the verdict, the side-by-side vs
   Springfield & Hamburg, and every gate score recalculate instantly (live `INDEX/MATCH` +
   `IF` formulas that reproduce the engine exactly).
-- **Deals** — raw metric inputs (one column per deal). Drop in a new deal by adding a column.
+- **Add a Deal** — instructions + a one-deal input form (read by the macro button).
+- **Deals** — one column per deal. The proven winners are locked; ready-to-fill **"New Deal"
+  slots** are pre-wired into the whole engine.
 - **Scores** — the live gate engine for every deal at once.
 - **Ranking** — all deals with score + verdict; sort by score for the go/no-go ranking list.
-- **Market Ranking** — the top markets from the weighted ranking.
+- **Market Ranking** / **Market Data** — the weighted ranking (top markets + a full lookup table).
 
-The dashboard verdicts were validated against the Python engine: Springfield → GO (85),
-Hamburg → GO (78.5).
+### Adding any deal — three ways
+
+1. **Type it in.** On the Deals tab, find the first empty **New Deal** column (yellow cells),
+   pick the **Deal type** and the **Market (county)** from the dropdowns, and enter the
+   economics. The market stats (population, growth, pipeline, rank) **auto-fill from the county
+   via `VLOOKUP`**, and the GO / CONDITIONAL / NO-GO verdict computes immediately off the
+   Springfield & Hamburg statics. The derived fields (is-development, LTV, yield-on-cost) are
+   formulas — you don't enter them.
+2. **One-click button.** Save the workbook as `.xlsm`, import `excel/AddDeal.bas`, and assign
+   the `AddDeal` macro to a button on the Add-a-Deal sheet. Fill the form, click once — it
+   drops the deal into the next free slot, recalculates, and shows the verdict. (Excel can't
+   embed a macro into an `.xlsx`, and this build environment has no Excel to author one, so the
+   button is a 4-step setup; the typed-in path needs no macros.)
+3. **Import a pro forma** with `python -m deal_agent.ic.cli add --proforma X.xlsx --market ...`.
+
+The dashboard verdicts were validated against the Python engine with a real formula evaluator:
+Springfield → GO (85), Hamburg → GO (78.5); a filled development slot → GO (85); thin-yield and
+IRR-below-cap deals → NO-GO via the critical veto; an empty slot → NO-GO.
 
 ## Data & confidentiality
 
