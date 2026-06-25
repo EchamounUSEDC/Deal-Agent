@@ -18,7 +18,7 @@ import os
 import sys
 
 from .benchmarks import load_benchmarks
-from .extract import extract_deal
+from .extract import extract_from_path
 from .market import MarketRanking, DEFAULT_CSV
 from .report import scorecard
 from .schema import Deal
@@ -46,7 +46,7 @@ def _market() -> MarketRanking | None:
 
 
 def _prepare(proforma: str, name: str | None, market_query: str | None) -> tuple[Deal, list[str]]:
-    deal, notes = extract_deal(proforma, name=name)
+    deal, notes = extract_from_path(proforma, name=name)
     if market_query:
         deal.market_label = market_query
     mk = _market()

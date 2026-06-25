@@ -96,6 +96,23 @@ Nashville"* and it will drive the benchmarker, screener, and market-fit steps.
 > a one-time setup; options 1, 3, and 4 need no macros. All decide GO/No-Go off the same
 > Springfield & Hamburg statics.
 
+### What files the importer accepts
+
+The Python importer (options 1 & 4 above) reads:
+
+| Input | Handling |
+|-------|----------|
+| `.xlsx` / `.xlsm` / `.xls` pro forma | line-item scan → NOI, caps, IRR, equity/debt, NRSF |
+| `.csv` | same line-item scan |
+| **`.zip` package of financials** | unpacks and picks the most relevant statement inside (prefers a Rolling-12 / T-12 / pro forma / underwriting file) |
+| **T-12 / rolling-12 operating statement** | reads the **Total** column (or sums the months) → total revenue, NOI, op-ex ratio |
+
+An **operating statement** (actuals) supplies NOI and the op-ex ratio but **not** the
+investment metrics — price/cap, IRR, and market. Those rows stay blank and surface as gate
+failures, so such a file scores low until you add the deal's cap/return/market assumptions
+(type them into the slot, or pair it with a pro forma). The benchmarks are **self-storage**, so
+treat verdicts for other property types as a financial read, not an apples-to-apples call.
+
 The dashboard verdicts were validated against the Python engine with a real formula evaluator:
 Springfield → GO (85), Hamburg → GO (78.5); a filled development slot → GO (85); thin-yield and
 IRR-below-cap deals → NO-GO via the critical veto; an empty slot → NO-GO.

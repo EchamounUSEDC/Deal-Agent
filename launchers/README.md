@@ -2,10 +2,11 @@
 
 No command line, no Excel macros. Two ways to use either launcher:
 
-- **Double-click** it → a file picker opens → choose one or more pro forma files.
+- **Double-click** it → a file picker opens → choose one or more files.
 - **Drag a spreadsheet onto it** → that file is imported directly.
 
-It reads each pro forma, auto-detects the market (fuzzy-matched to the 246-market
+It accepts .xlsx, .xls, .csv, and .zip packages of financials (it picks the most
+relevant statement inside, e.g. a Rolling-12). It reads each file, auto-detects the market (fuzzy-matched to the 246-market
 ranking), scores it GO / CONDITIONAL / NO-GO against Springfield & Hamburg, adds it to
 `IC_GoNoGo_Dashboard.xlsx`, and opens the dashboard.
 

@@ -13,7 +13,9 @@ examples/sample_data/
 # Generated deliverables (may contain confidential client data) — do not commit
 *.docx
 *.xlsx
+*.xls
 *.csv
+*.zip
 Tanglewood_*
 
 # IC engine: real benchmark economics & saved candidates stay local (example is committed)

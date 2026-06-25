@@ -18,13 +18,13 @@ import subprocess
 import sys
 
 from .benchmarks import load_benchmarks
-from .extract import extract_deal
+from .extract import extract_from_path
 from .schema import evaluate
 from .workbook import build_workbook
 from . import cli as _cli  # reuse candidate store + market loader
 
 OUT = os.path.join(_cli._ROOT, "IC_GoNoGo_Dashboard.xlsx")
-_EXTS = (".xlsx", ".xlsm", ".xls")
+_EXTS = (".xlsx", ".xlsm", ".xls", ".csv", ".zip")
 
 
 def _pick_files() -> list[str]:
@@ -34,7 +34,7 @@ def _pick_files() -> list[str]:
         root = tk.Tk(); root.withdraw(); root.update()
         paths = filedialog.askopenfilenames(
             title="Select pro forma spreadsheet(s) to import",
-            filetypes=[("Excel files", "*.xlsx *.xlsm *.xls"), ("All files", "*.*")])
+            filetypes=[("Financials", "*.xlsx *.xlsm *.xls *.csv *.zip"), ("All files", "*.*")])
         root.destroy()
         return list(paths)
     except Exception:
@@ -71,7 +71,7 @@ def import_files(paths: list[str]) -> tuple[str, list[str]]:
     cands = _cli._load_candidates()
     summary: list[str] = []
     for p in paths:
-        deal, _notes = extract_deal(p)
+        deal, _notes = extract_from_path(p)
         if market is not None:
             market.enrich(deal)  # uses the location auto-read from the file
         res = evaluate(deal)
