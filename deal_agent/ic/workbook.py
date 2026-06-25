@@ -281,7 +281,7 @@ def _write_template_column(dz, c, k, n_markets):
     dv_type = DataValidation(type="list", formula1=f'"{INCOME},{DEVELOPMENT}"', allow_blank=False)
     dz.add_data_validation(dv_type); dv_type.add(dz[cc("deal_type")])
     if n_markets:
-        dv_cty = DataValidation(type="list", formula1="=MarketCounties", allow_blank=True)
+        dv_cty = DataValidation(type="list", formula1="MarketCounties", allow_blank=True)
         dv_cty.prompt = "Pick the deal's county"; dz.add_data_validation(dv_cty)
         dv_cty.add(dz[cc("market_county")])
 
@@ -451,7 +451,7 @@ def _build_add_sheet(ad, slot_cols, has_market):
             dv = DataValidation(type="list", formula1=f'"{INCOME},{DEVELOPMENT}"', allow_blank=False)
             ad.add_data_validation(dv); dv.add(cell)
         elif dd == "county" and has_market:
-            dv = DataValidation(type="list", formula1="=MarketCounties", allow_blank=True)
+            dv = DataValidation(type="list", formula1="MarketCounties", allow_blank=True)
             ad.add_data_validation(dv); dv.add(cell)
 
 
