@@ -380,7 +380,14 @@ def _build_dashboard(db, fixed, cols, last_letter, n_bench):
         db.conditional_formatting.add(f"B{r}", CellIsRule(operator="equal",
             formula=["0"], fill=PatternFill("solid", fgColor=RED)))
 
-    dv = DataValidation(type="list", formula1="=DealNames", allow_blank=False)
+    # On-sheet copy of the deal names so the dropdown works in every app (Excel
+    # desktop/web, Google Sheets, LibreOffice) — a cross-sheet list source does not.
+    n_deals = len(cols)
+    for i, dcol in enumerate(cols):
+        _set(db, f"J{i+1}", f"=Deals!{dcol}1", border=False)
+        db[f"J{i+1}"].font = Font(color="FFFFFF")
+    db.column_dimensions["J"].hidden = True
+    dv = DataValidation(type="list", formula1=f"$J$1:$J${n_deals}", allow_blank=False)
     dv.prompt = "Choose a deal to evaluate"; db.add_data_validation(dv); dv.add(db["B3"])
 
 
