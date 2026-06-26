@@ -7,3 +7,4 @@ package.json
 render.log
 frames/
 *.tmp
+render2.log
