@@ -3,8 +3,12 @@ node_modules/
 package-lock.json
 package.json
 
-# Render artifacts / logs (the finished video is committed explicitly)
+# Render artifacts / logs
 render.log
+render2.log
 frames/
 *.tmp
-render2.log
+
+# Rendered videos are delivered as files, not stored in git (keep repo light)
+*.mp4
+*.webm
