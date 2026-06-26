@@ -12,3 +12,4 @@ frames/
 # Rendered videos are delivered as files, not stored in git (keep repo light)
 *.mp4
 *.webm
+render3.log

@@ -24,8 +24,8 @@ import * as CANNON from 'cannon-es';
 // Tunables
 // -----------------------------------------------------------------------------
 const CONFIG = {
-  spawnIntervalMs: 130,    // how often a new object drops (lower = denser stream)
-  maxObjects: 170,         // hard cap on live objects
+  spawnIntervalMs: 110,    // how often a new object drops (lower = denser stream)
+  maxObjects: 180,         // hard cap on live objects
   cardChipRatio: 0.42,     // probability a spawned object is a card (vs chip)
   spawnHeight: 22,         // how high above center objects appear
   spawnSpreadX: 22,        // horizontal spread of the falling stream
@@ -123,9 +123,10 @@ const TextureCache = (() => {
     const key = `chip-${style.value}`;
     if (cache.has(key)) return cache.get(key);
 
-    const S = 1024, R = S / 2;
-    const c = mk(S, S);
+    const S = 1024, R = S / 2, SS = 2; // SS = supersample the texture for crispness
+    const c = mk(S * SS, S * SS);
     const ctx = c.getContext('2d');
+    ctx.scale(SS, SS);
     ctx.translate(R, R);
 
     // body
@@ -225,9 +226,10 @@ const TextureCache = (() => {
   function cardBack() {
     const key = 'card-back';
     if (cache.has(key)) return cache.get(key);
-    const W = 716, H = 1024;
-    const c = mk(W, H);
+    const W = 716, H = 1024, SS = 2;
+    const c = mk(W * SS, H * SS);
     const ctx = c.getContext('2d');
+    ctx.scale(SS, SS);
 
     ctx.fillStyle = '#f7f4ee';
     roundRect(ctx, 0, 0, W, H, 60); ctx.fill();
@@ -293,9 +295,10 @@ const TextureCache = (() => {
     const key = `card-${rank}-${suit.s}`;
     if (cache.has(key)) return cache.get(key);
 
-    const W = 716, H = 1024;
-    const c = mk(W, H);
+    const W = 716, H = 1024, SS = 2;
+    const c = mk(W * SS, H * SS);
     const ctx = c.getContext('2d');
+    ctx.scale(SS, SS);
 
     ctx.fillStyle = '#fbfbf7';
     roundRect(ctx, 0, 0, W, H, 60); ctx.fill();
@@ -387,7 +390,7 @@ async function preloadAssets() {
 // =============================================================================
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3)); // honor SSAA device scale
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
 
@@ -522,9 +525,17 @@ function dealBurst(n = 24) { for (let i = 0; i < n; i++) setTimeout(spawn, i * 3
 // =============================================================================
 // Post-processing
 // =============================================================================
-const composer = new EffectComposer(renderer);
+// Render into a MULTISAMPLED, HDR render target so geometry edges get true
+// hardware anti-aliasing (the default EffectComposer target bypasses the
+// renderer's antialias setting — that was the source of the jagged edges).
+const dbs = renderer.getDrawingBufferSize(new THREE.Vector2());
+const msaaTarget = new THREE.WebGLRenderTarget(dbs.x, dbs.y, {
+  type: THREE.HalfFloatType,
+  samples: 8,                 // 8x MSAA
+});
+const composer = new EffectComposer(renderer, msaaTarget);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.35, 0.8, 0.95);
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.3, 0.75, 0.96);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
@@ -617,6 +628,8 @@ async function start() {
 
   if (CAPTURE) {
     document.getElementById('hint').style.display = 'none';
+    document.getElementById('loading').style.display = 'none'; // hide instantly, no fade
+
     lastSpawn = 0; lastTime = 0; vNow = 0;
     const warmupFrames = Math.round(FPS * 6);
     for (let i = 0; i < warmupFrames; i++) { vNow += FRAME_DT; step(vNow, FRAME_DT / 1000, false); }

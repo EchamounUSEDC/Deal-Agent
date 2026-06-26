@@ -39,8 +39,11 @@ const CRF     = parseInt(arg('crf', '18'), 10);
 const WEBM    = !!arg('webm', false);
 const TITLE   = arg('title', null);
 const SUBT    = arg('subtitle', null);
+const SS      = parseFloat(arg('ss', '2'));   // supersample factor (renders at WIDTH*SS, downscales)
 const OUT     = arg('out', WEBM ? 'casino.webm' : 'casino.mp4');
 const TOTAL_FRAMES = Math.round(SECONDS * FPS);
+const SHOOT_W = Math.round(WIDTH * SS);
+const SHOOT_H = Math.round(HEIGHT * SS);
 
 // ---- locate ffmpeg ----------------------------------------------------------
 function findFfmpeg() {
@@ -87,13 +90,18 @@ if (TITLE) q.set('title', TITLE);
 if (SUBT)  q.set('subtitle', SUBT);
 const pageUrl = `http://127.0.0.1:${port}/index.html?${q.toString()}`;
 
-console.log(`> Rendering ${TOTAL_FRAMES} frames @ ${WIDTH}x${HEIGHT} ${FPS}fps (${SECONDS}s) -> ${outFile}`);
+console.log(`> Rendering ${TOTAL_FRAMES} frames, shoot ${SHOOT_W}x${SHOOT_H} (${SS}x SSAA) -> ${WIDTH}x${HEIGHT} ${FPS}fps (${SECONDS}s) -> ${outFile}`);
 
 // ---- ffmpeg: read PNG frames from stdin, encode -----------------------------
+// Downscale the supersampled frames to the target size with a sharp Lanczos
+// filter — this is what removes aliasing/pixelation.
+const scaleFilter = `scale=${WIDTH}:${HEIGHT}:flags=lanczos`;
 const ffArgs = useWebm
   ? ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-i', 'pipe:0',
-     '-c:v', 'libvpx', '-b:v', '6M', '-crf', '10', '-pix_fmt', 'yuv420p', outFile]
+     '-vf', scaleFilter,
+     '-c:v', 'libvpx', '-b:v', '8M', '-crf', '8', '-pix_fmt', 'yuv420p', outFile]
   : ['-y', '-f', 'image2pipe', '-framerate', String(FPS), '-i', 'pipe:0',
+     '-vf', scaleFilter,
      '-c:v', 'libx264', '-preset', 'medium', '-crf', String(CRF),
      '-pix_fmt', 'yuv420p', '-movflags', '+faststart', outFile];
 
@@ -113,7 +121,7 @@ const browser = await chromium.launch({
     `--window-size=${WIDTH},${HEIGHT}`,
   ],
 });
-const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT }, deviceScaleFactor: 1 });
+const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT }, deviceScaleFactor: SS });
 page.on('pageerror', e => console.error('PAGE ERROR:', e.message));
 page.on('console', m => { if (m.type() === 'error') console.error('console:', m.text()); });
 
