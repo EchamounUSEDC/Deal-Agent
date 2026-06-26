@@ -18,14 +18,15 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import * as CANNON from 'cannon-es';
 
 // -----------------------------------------------------------------------------
 // Tunables
 // -----------------------------------------------------------------------------
 const CONFIG = {
-  spawnIntervalMs: 110,    // how often a new object drops (lower = denser stream)
-  maxObjects: 180,         // hard cap on live objects
+  spawnIntervalMs: 95,     // how often a new object drops (lower = denser stream)
+  maxObjects: 200,         // hard cap on live objects
   cardChipRatio: 0.42,     // probability a spawned object is a card (vs chip)
   spawnHeight: 22,         // how high above center objects appear
   spawnSpreadX: 22,        // horizontal spread of the falling stream
@@ -464,8 +465,8 @@ function makeCard() {
   const face = faceTexture(`card-${rank}-${suit.s}`, () => TextureCache.cardFace(rank, suit));
   const back = faceTexture('card-back', () => TextureCache.cardBack());
   const edge = new THREE.MeshStandardMaterial({ color: 0xf2efe8, roughness: 0.55, metalness: 0 });
-  const faceMat = new THREE.MeshStandardMaterial({ map: face, roughness: 0.5, metalness: 0 });
-  const backMat = new THREE.MeshStandardMaterial({ map: back, roughness: 0.5, metalness: 0 });
+  const faceMat = new THREE.MeshStandardMaterial({ map: face, roughness: 0.42, metalness: 0.02, envMapIntensity: 1.1 });
+  const backMat = new THREE.MeshStandardMaterial({ map: back, roughness: 0.42, metalness: 0.02, envMapIntensity: 1.1 });
   const mesh = new THREE.Mesh(cardGeo, [edge, edge, edge, edge, faceMat, backMat]);
 
   const body = new CANNON.Body({ mass: 0.4, material: pieceMat });
@@ -479,8 +480,9 @@ function makeChip() {
   const style = CHIP_STYLES[(Math.random() * CHIP_STYLES.length) | 0];
   const face = faceTexture(`chip-${style.value}`, () => TextureCache.chipFace(style));
   const edgeTex = TextureCache.chipEdge(style);
-  const faceMat = new THREE.MeshStandardMaterial({ map: face, roughness: 0.28, metalness: 0.2 });
-  const edgeMat = new THREE.MeshStandardMaterial({ map: edgeTex, roughness: 0.35, metalness: 0.2 });
+  // glossy clay-chip look: matte body under a clear lacquer coat
+  const faceMat = new THREE.MeshPhysicalMaterial({ map: face, roughness: 0.4, metalness: 0.05, clearcoat: 0.7, clearcoatRoughness: 0.25, envMapIntensity: 1.3 });
+  const edgeMat = new THREE.MeshPhysicalMaterial({ map: edgeTex, roughness: 0.45, metalness: 0.05, clearcoat: 0.5, clearcoatRoughness: 0.3, envMapIntensity: 1.2 });
   const mesh = new THREE.Mesh(chipGeo, [edgeMat, faceMat, faceMat]); // side, top, bottom
 
   const body = new CANNON.Body({ mass: 1.1, material: pieceMat });
@@ -546,6 +548,23 @@ composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.3, 0.75, 0.96);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
+
+// Subtle ordered dithering on the final image — breaks up 8-bit colour banding
+// in the dark background / bloom halos, which otherwise reads as blockiness.
+const DitherShader = {
+  uniforms: { tDiffuse: { value: null }, amount: { value: 1.6 / 255 } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tDiffuse; uniform float amount; varying vec2 vUv;
+    float rand(vec2 c){ return fract(sin(dot(c, vec2(12.9898,78.233))) * 43758.5453); }
+    void main(){
+      vec4 col = texture2D(tDiffuse, vUv);
+      // triangular PDF noise (smoother than uniform)
+      float n = rand(vUv) + rand(vUv + 0.5) - 1.0;
+      gl_FragColor = vec4(col.rgb + n * amount, col.a);
+    }`,
+};
+composer.addPass(new ShaderPass(DitherShader));
 
 // =============================================================================
 // Simulation step (shared by realtime + capture)
