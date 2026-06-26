@@ -28,3 +28,5 @@ video/clips/
 
 # but keep the real user-provided source images
 !casino-display/video/source_images/
+video/realimg/
+video/realimg2/
