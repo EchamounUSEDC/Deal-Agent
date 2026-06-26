@@ -47,7 +47,7 @@ def build_scene(idx, scene):
     key = scene['key']
     dur = round(scene['dur'] + 1.0, 2)
     bg = os.path.join(AST, SCENE_BG[key])
-    nug_anim = os.path.join(HERE, 'nug_anim.mov')   # animated, talking Nug (alpha)
+    nug_anim = os.path.join(HERE, f'nug_{key}.mov')   # per-scene lip-synced Nug (alpha)
     aud = os.path.join(HERE, scene['audio'])
     out = os.path.join(CLIPS, f'{key}.mp4')
 
@@ -63,7 +63,7 @@ def build_scene(idx, scene):
           f"[2:a]adelay=300|300,apad[au]")
     run([FF, '-y', '-hide_banner', '-loglevel', 'error',
          '-loop', '1', '-i', bg,
-         '-stream_loop', '-1', '-i', nug_anim,
+         '-i', nug_anim,
          '-i', aud,
          '-filter_complex', fc,
          '-map', '[v]', '-map', '[au]', '-t', str(dur), '-r', '30',
@@ -100,6 +100,15 @@ def concat(parts, out):
          '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p',
          '-c:a', 'aac', '-ar', '44100', '-ac', '2', '-movflags', '+faststart', out])
 
+def add_music(video, music, out):
+    # mix Wild-West music quietly under the narration for the whole video
+    fc = ("[1:a]volume=0.14,afade=t=in:st=0:d=1.5[m];"
+          "[0:a][m]amix=inputs=2:duration=first:dropout_transition=0,"
+          "dynaudnorm=f=200[a]")
+    run([FF, '-y', '-hide_banner', '-loglevel', 'error', '-i', video, '-i', music,
+         '-filter_complex', fc, '-map', '0:v', '-map', '[a]',
+         '-c:v', 'copy', '-c:a', 'aac', '-movflags', '+faststart', out])
+
 if __name__ == '__main__':
     mode = sys.argv[1] if len(sys.argv) > 1 else 'scenes'
     scenes = json.load(open(os.path.join(HERE, 'scenes.json')))
@@ -113,6 +122,12 @@ if __name__ == '__main__':
         print('Building intro + concatenating...')
         intro = build_intro(cards)
         parts = [intro] + [os.path.join(CLIPS, f"{s['key']}.mp4") for s in scenes]
+        tmp = os.path.join(CLIPS, '_concat.mp4')
+        concat(parts, tmp)
         out = os.path.join(HERE, 'nug_rough_draft.mp4')
-        concat(parts, out)
+        music = os.path.join(HERE, 'music.wav')
+        if os.path.exists(music):
+            add_music(tmp, music, out)
+        else:
+            os.replace(tmp, out)
         print(f'DONE -> {out}')

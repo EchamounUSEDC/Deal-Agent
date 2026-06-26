@@ -29,12 +29,14 @@ manifest = []
 for key, line in SCENES:
     raw = os.path.join(AUD, f'{key}_raw.wav')
     fin = os.path.join(AUD, f'{key}.wav')
-    # fresh process per line: espeak_Initialize must run once per process
+    # fresh process per line: espeak_Initialize must run once per process.
+    # Deeper + slower = a cowboy/Western drawl approximation.
     subprocess.run([sys.executable, os.path.join(HERE, 'tts_espeak.py'),
-                    line, raw, '68', '158', 'en-us+m3'], check=True)
-    # warm it up: pitch +8%, keep tempo, soften highs, normalize
-    af = ("asetrate=22050*1.08,aresample=22050,atempo=1/1.08,"
-          "highshelf=g=-3:f=3500,acompressor=ratio=3,loudnorm=I=-16:TP=-1.5:LRA=11")
+                    line, raw, '40', '132', 'en-us+m1'], check=True)
+    # keep it deep (very slight pitch tweak), add a touch of warmth + body
+    af = ("asetrate=22050*1.02,aresample=22050,atempo=1/1.02,"
+          "highshelf=g=-4:f=3200,bass=g=4:f=120,acompressor=ratio=3,"
+          "loudnorm=I=-16:TP=-1.5:LRA=11")
     subprocess.run([FF, '-y', '-hide_banner', '-loglevel', 'error', '-i', raw,
                     '-af', af, '-ar', '44100', '-ac', '1', fin], check=True)
     d = wav_dur(fin)

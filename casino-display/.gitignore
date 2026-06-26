@@ -32,3 +32,5 @@ video/realimg/
 video/realimg2/
 video/nug_frames/
 video/nug_anim.mov
+video/nug_*.mov
+video/music.wav

@@ -3,30 +3,30 @@
     "key": "s1_intro",
     "line": "Well, howdy there, partners! I'm Nug, a little gold nugget with a big old story to tell. Come along with me to one of Colorado's most famous mountain towns!",
     "audio": "audio/s1_intro.wav",
-    "dur": 10.22
+    "dur": 12.84
   },
   {
     "key": "s2_town",
     "line": "This here is Central City, Colorado, tucked high in the Rocky Mountains at over eight thousand five hundred feet. Folks once called it the Richest Square Mile on Earth!",
     "audio": "audio/s2_town.wav",
-    "dur": 9.85
+    "dur": 12.25
   },
   {
     "key": "s3_history",
     "line": "Way back in eighteen fifty nine, a prospector named John Gregory struck gold right here in Gregory Gulch. Word spread like wildfire, and thousands of miners rushed in, building this whole town almost overnight!",
     "audio": "audio/s3_history.wav",
-    "dur": 12.66
+    "dur": 15.87
   },
   {
     "key": "s4_main",
     "line": "Today, Central City's historic Main Street is alive again! You can try your luck at the casinos, catch a show at the grand old Opera House, and stroll past beautiful buildings from the gold rush days.",
     "audio": "audio/s4_main.wav",
-    "dur": 12.22
+    "dur": 15.18
   },
   {
     "key": "s5_outro",
     "line": "So come on up and visit Central City, where Colorado's golden history still shines bright! This is Nug, wishin' you good luck, and happy trails!",
     "audio": "audio/s5_outro.wav",
-    "dur": 9.52
+    "dur": 11.77
   }
 ]
