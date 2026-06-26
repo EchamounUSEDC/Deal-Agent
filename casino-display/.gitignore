@@ -14,3 +14,6 @@ frames/
 *.webm
 render3.log
 render4.log
+
+# any render/probe logs
+*.log
