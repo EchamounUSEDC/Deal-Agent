@@ -5,11 +5,11 @@ Robotic espeak output is post-processed with ffmpeg: a slight upward pitch
 shift + gentle high cut to warm it, then loudness-normalized. Writes a
 scenes.json manifest with each line's audio path and duration.
 """
-import os, json, subprocess, wave
+import os, json, subprocess, wave, sys
 import imageio_ffmpeg
-from tts_espeak import synth
 
 FF = imageio_ffmpeg.get_ffmpeg_exe()
+HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.dirname(os.path.abspath(__file__))
 AUD = os.path.join(OUT, 'audio'); os.makedirs(AUD, exist_ok=True)
 
@@ -29,7 +29,9 @@ manifest = []
 for key, line in SCENES:
     raw = os.path.join(AUD, f'{key}_raw.wav')
     fin = os.path.join(AUD, f'{key}.wav')
-    synth(line, raw, pitch=68, rate=158, voice='en-us+m3', rng=72)
+    # fresh process per line: espeak_Initialize must run once per process
+    subprocess.run([sys.executable, os.path.join(HERE, 'tts_espeak.py'),
+                    line, raw, '68', '158', 'en-us+m3'], check=True)
     # warm it up: pitch +8%, keep tempo, soften highs, normalize
     af = ("asetrate=22050*1.08,aresample=22050,atempo=1/1.08,"
           "highshelf=g=-3:f=3500,acompressor=ratio=3,loudnorm=I=-16:TP=-1.5:LRA=11")
