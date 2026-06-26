@@ -1,0 +1,9 @@
+# Installed packages (vendor/ holds the copies the app actually loads)
+node_modules/
+package-lock.json
+package.json
+
+# Render artifacts / logs (the finished video is committed explicitly)
+render.log
+frames/
+*.tmp

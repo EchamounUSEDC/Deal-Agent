@@ -383,7 +383,7 @@ function makeChip() {
   return { mesh, body, type: 'chip' };
 }
 
-function spawn() {
+function spawn(now) {
   if (pieces.filter(p => !p.dead).length >= CONFIG.maxObjects) recycleOldest();
 
   const obj = Math.random() < CONFIG.cardChipRatio ? makeCard() : makeChip();
@@ -402,7 +402,7 @@ function spawn() {
   scene.add(mesh);
   world.addBody(body);
 
-  const piece = { ...obj, bornAt: performance.now(), dead: false };
+  const piece = { ...obj, bornAt: now, dead: false };
   pieces.push(piece);
 }
 
@@ -426,7 +426,7 @@ function recycleOldest() {
 
 // Manual "deal a burst" — fun for showing off / spacebar.
 function dealBurst(n = 24) {
-  for (let i = 0; i < n; i++) setTimeout(spawn, i * 40);
+  for (let i = 0; i < n; i++) setTimeout(() => spawn(performance.now()), i * 40);
 }
 
 // =============================================================================
@@ -445,14 +445,12 @@ let lastSpawn = 0;
 let lastTime = performance.now();
 const camTarget = new THREE.Vector3(0, 3, 0);
 
-function animate(now) {
-  requestAnimationFrame(animate);
-  const dt = Math.min((now - lastTime) / 1000, 1 / 30);
-  lastTime = now;
-
+// One simulation tick at the given virtual time `now` (ms) and step `dt` (s).
+// Pass render=false to advance physics without drawing (used for warm-up).
+function step(now, dt, render = true) {
   // spawn cadence
   if (now - lastSpawn > CONFIG.spawnIntervalMs) {
-    spawn();
+    spawn(now);
     lastSpawn = now;
   }
 
@@ -480,7 +478,15 @@ function animate(now) {
   camera.position.y = 14 + Math.sin(t * 1.7) * 2.5;
   camera.lookAt(camTarget);
 
-  composer.render();
+  if (render) composer.render();
+}
+
+// Real-time driver (interactive / big-screen kiosk use).
+function animate(now) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((now - lastTime) / 1000, 1 / 30);
+  lastTime = now;
+  step(now, dt);
 }
 
 // =============================================================================
@@ -526,10 +532,46 @@ if (params.get('title')) document.querySelector('[data-title]').textContent = pa
 if (params.get('subtitle')) document.querySelector('[data-subtitle]').textContent = params.get('subtitle');
 
 // =============================================================================
+// Offline video-capture mode
+// -----------------------------------------------------------------------------
+// When loaded with ?capture=1[&fps=60], the page does NOT animate on its own.
+// Instead it exposes a deterministic, frame-stepped API that an external
+// headless renderer (see render-video.mjs) drives one frame at a time:
+//   window.__captureReady  -> true once warmed up and ready to capture
+//   window.__renderFrame() -> advance the sim by exactly 1/fps and draw
+// A virtual clock guarantees perfectly smooth motion regardless of how long
+// each frame actually takes to render.
+// =============================================================================
+const CAPTURE = params.get('capture') === '1';
+const FPS = Math.max(1, parseInt(params.get('fps') || '60', 10));
+const FRAME_DT = 1000 / FPS;          // ms per frame
+let vNow = 0;                         // virtual clock (ms)
+
+window.__renderFrame = function () {
+  vNow += FRAME_DT;
+  step(vNow, FRAME_DT / 1000, true);
+};
+
+// =============================================================================
 // Kick things off
 // =============================================================================
 function start() {
   document.getElementById('loading').classList.add('done');
+
+  if (CAPTURE) {
+    document.getElementById('hint').style.display = 'none';
+    // Warm up: pre-fill the table with a lively pile before the first frame,
+    // advancing physics without drawing so frame 0 already looks great.
+    lastSpawn = 0; lastTime = 0; vNow = 0;
+    const warmupFrames = Math.round(FPS * 8); // ~8s of pre-roll for a full table
+    for (let i = 0; i < warmupFrames; i++) {
+      vNow += FRAME_DT;
+      step(vNow, FRAME_DT / 1000, false);
+    }
+    window.__captureReady = true;
+    return;
+  }
+
   // seed a nice opening pile
   dealBurst(40);
   requestAnimationFrame(animate);
