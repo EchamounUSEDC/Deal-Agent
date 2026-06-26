@@ -181,7 +181,7 @@ const TextureCache = (() => {
 
     // arched brand text:  THE  /  WYDLE
     arcText(ctx, 'THE',   R * 0.42, true,  `bold ${Math.round(R * 0.085)}px Georgia, serif`, '#8a6a22');
-    arcText(ctx, 'WYDLE', R * 0.42, false, `bold ${Math.round(R * 0.085)}px Georgia, serif`, '#8a6a22');
+    arcText(ctx, 'WYLDE', R * 0.42, false, `bold ${Math.round(R * 0.075)}px Georgia, serif`, '#8a6a22');
 
     // inner decorative ring of dots around the number
     ctx.fillStyle = '#c8a24a';
@@ -266,13 +266,18 @@ const TextureCache = (() => {
     // center medallion
     ctx.fillStyle = 'rgba(120,8,16,0.95)';
     ctx.beginPath(); ctx.ellipse(W / 2, H / 2, 150, 200, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = '#f7f4ee'; ctx.lineWidth = 5;
+    ctx.strokeStyle = '#e6c053'; ctx.lineWidth = 6;
     ctx.beginPath(); ctx.ellipse(W / 2, H / 2, 150, 200, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = '#f7f4ee';
-    ctx.font = '160px Georgia, serif';
-    ctx.fillText('♛', W / 2, H / 2 - 18);
-    ctx.font = 'bold 44px Georgia, serif';
-    ctx.fillText('WYDLE', W / 2, H / 2 + 120);
+
+    // gold crown + "THE WYLDE", explicitly centered (textAlign was reset above)
+    ctx.fillStyle = '#e6c053';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '150px Georgia, serif';
+    ctx.fillText('♛', W / 2, H / 2 - 64);
+    ctx.font = 'bold 60px Georgia, serif';
+    ctx.fillText('THE', W / 2, H / 2 + 44);
+    ctx.fillText('WYLDE', W / 2, H / 2 + 116);
 
     return finalize(c, key);
   }
@@ -351,6 +356,9 @@ const TextureCache = (() => {
 
   return { chipFace, chipEdge, cardBack, cardFace };
 })();
+
+// Debug hook: lets tooling inspect a generated texture (e.g. the card back).
+window.__TC = TextureCache;
 
 // =============================================================================
 // Optional asset preloading (exact images, if present in ./assets/)
