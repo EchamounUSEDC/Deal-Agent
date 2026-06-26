@@ -74,10 +74,7 @@ def scene(src, title, dst, darken=0.0):
     im = im.crop((x, y, x + W, y + H))
     if darken:
         im = Image.eval(im, lambda v: int(v * (1 - darken)))
-    d = ImageDraw.Draw(im)
-    d.rectangle([0, 0, W, 96], fill=(0, 0, 0))
-    d.text((60, 20), title, font=ImageFont.truetype(SERIF, 54), fill=(233, 196, 106))
-    d.rectangle([0, H - 4, W, H], fill=(233, 196, 106))
+    # No title bar / no caption — clean full-bleed photo (per user request).
     im.save(dst)
     print('bg ->', os.path.basename(dst))
 

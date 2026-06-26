@@ -47,27 +47,23 @@ def build_scene(idx, scene):
     key = scene['key']
     dur = round(scene['dur'] + 1.0, 2)
     bg = os.path.join(AST, SCENE_BG[key])
-    nug = os.path.join(AST, 'nug.png')
-    cap = os.path.join(CLIPS, f'cap_{key}.png')
+    nug_anim = os.path.join(HERE, 'nug_anim.mov')   # animated, talking Nug (alpha)
     aud = os.path.join(HERE, scene['audio'])
     out = os.path.join(CLIPS, f'{key}.mp4')
-    make_caption(scene['line'], cap)
 
-    # Nug walks across; direction alternates; gentle vertical bob.
-    nug_scale = 460
+    # Nug walks across; direction alternates; gentle vertical bob. No captions.
+    nug_scale = 520
     if idx % 2 == 0:
         x_expr = f'(W-w)*t/{dur}'
     else:
         x_expr = f'(W-w)*(1-t/{dur})'
-    y_expr = f'H*0.40+28*sin(2*PI*1.3*t)'
+    y_expr = f'H*0.34+26*sin(2*PI*1.3*t)'
     fc = (f"[1:v]scale={nug_scale}:-1[n];"
-          f"[0:v][n]overlay=x='{x_expr}':y='{y_expr}':eval=frame[a];"
-          f"[a][2:v]overlay=0:0[v];"
-          f"[3:a]adelay=300|300,apad[au]")
+          f"[0:v][n]overlay=x='{x_expr}':y='{y_expr}':eval=frame:format=auto[v];"
+          f"[2:a]adelay=300|300,apad[au]")
     run([FF, '-y', '-hide_banner', '-loglevel', 'error',
          '-loop', '1', '-i', bg,
-         '-loop', '1', '-i', nug,
-         '-loop', '1', '-i', cap,
+         '-stream_loop', '-1', '-i', nug_anim,
          '-i', aud,
          '-filter_complex', fc,
          '-map', '[v]', '-map', '[au]', '-t', str(dur), '-r', '30',
