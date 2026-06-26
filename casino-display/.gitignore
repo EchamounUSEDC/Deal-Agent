@@ -18,3 +18,8 @@ render4.log
 # any render/probe logs
 *.log
 render5.log
+
+# Nug video build artifacts (regenerable)
+video/audio/
+*.wav
+video/*.png
