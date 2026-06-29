@@ -1,0 +1,49 @@
+IC GO / NO-GO DASHBOARD — INSTRUCTIONS
+
+WHAT IT DOES
+Scores any deal GO / CONDITIONAL GO / NO-GO against four proven reference models and a
+246-market ranking, with a downside stress test. Pick a deal and read the verdict.
+
+THE TABS
+Dashboard ....... pick a deal in cell B3; see verdict, comparison vs the reference models,
+                 the gate scorecard, and the stress test.
+Deals ........... every deal in a column. Yellow = you type · Blue = locked reference ·
+                 White = auto-calculated.
+Cash Flows ...... annual equity cash flows per deal; =IRR computes the IRR below.
+Scores .......... the live gate engine (one column per deal).
+Ranking ......... all deals ranked by score.
+Market Ranking / Market Data ... the 246-market data (Market Data is locked).
+
+HOW TO ADD A DEAL — 5 STEPS
+1.  Deals tab: go to the first empty 'New Deal' column (yellow cells).
+2.  Pick the Deal type and the Market (county) from the dropdowns. Market data AND the
+     market's typical exit cap / yield / IRR / op-ex auto-fill.
+3.  Type the economics in the yellow cells: Total cost, Equity, Debt, Exit cap, NOI,
+     Op-ex ratio, Going-in cap (income deals), Unlevered IRR, Levered IRR.
+4.  (Optional, for a true bottom-up IRR) Cash Flows tab: type the deal's annual equity
+     cash flows in its column (Year 0 = minus equity). =IRR computes automatically.
+5.  Dashboard tab: pick the deal in cell B3 -> read GO / CONDITIONAL GO / NO-GO,
+     the side-by-side vs the reference models, and the stress test.
+
+WHAT AUTO-CALCULATES (do not type these)
+Is-development · LTV · Yield-on-cost · Dev spread · Equity IRR · Calculated IRR · every
+market field (population, growth, pipeline, rank, and market exit cap / yield / IRR / op-ex).
+
+THE VERDICT
+Score 70 or more = GO   ·   50 to 69 = CONDITIONAL GO   ·   under 50 = NO-GO.
+Critical gates — failing ANY one forces NO-GO: IRR > exit cap · yield at least 6.5% ·
+market population at least 200,000.
+
+THE STRESS TEST (Dashboard, lower section)
+Applies exit cap +50 bps and NOI -5% to the selected deal.
+'YES — robust' = the deal still works under stress.  'FRAGILE' = it fails under stress.
+
+REFERENCE MODELS (blue, locked) — every deal is measured against these
+Springfield (income / core) · Hamburg (storage development) ·
+Dev 11-Mkt (workforce multifamily) · Factory Fund (operating company).
+
+COLOR KEY
+Yellow = type here · Blue = locked reference / auto-pulled · White = formula ·
+Green = gate passed · Red = gate failed.
+
+Not investment advice. Verify all figures independently.
