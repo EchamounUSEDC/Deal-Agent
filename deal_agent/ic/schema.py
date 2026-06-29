@@ -82,8 +82,9 @@ class Deal:
 
     @property
     def best_irr(self) -> Optional[float]:
-        vals = [v for v in (self.levered_irr, self.unlevered_irr) if v is not None]
-        return max(vals) if vals else None
+        # The equity return is the levered IRR; fall back to unlevered only when
+        # there is no debt. (Leverage can be dilutive, so MAX would overstate.)
+        return self.levered_irr if self.levered_irr is not None else self.unlevered_irr
 
     @property
     def underwriting_yield(self) -> Optional[float]:

@@ -73,7 +73,7 @@ METRICS = [
     ("market_pipeline_pct", "Supply pipeline %", "pct"),
     ("market_rank", "Market rank", "int"),
     ("market_score", "Market weighted score", "num2"),
-    ("best_irr", "Best IRR (calc)", "pct"),
+    ("best_irr", "Equity IRR (calc, levered)", "pct"),
     ("underwriting_yield", "Underwriting yield (calc)", "pct"),
 ]
 MROW = {f: i + 2 for i, (f, _, _) in enumerate(METRICS)}  # field -> Deals row
@@ -229,8 +229,8 @@ def _write_fixed_column(dz, c, deal: Deal, locked: bool):
         elif field == "market_county":
             val = deal.market_label
         elif field == "best_irr":
-            _set(dz, f"{c}{r}", f'=IF(COUNT({c}{MROW["unlevered_irr"]}:{c}{MROW["levered_irr"]})=0,"",'
-                 f'MAX({c}{MROW["unlevered_irr"]}:{c}{MROW["levered_irr"]}))', fmt=FMT["pct"], align=CENTER)
+            _set(dz, f"{c}{r}", f'=IF(ISNUMBER({c}{MROW["levered_irr"]}),{c}{MROW["levered_irr"]},'
+                 f'IF(ISNUMBER({c}{MROW["unlevered_irr"]}),{c}{MROW["unlevered_irr"]},""))', fmt=FMT["pct"], align=CENTER)
             continue
         elif field == "underwriting_yield":
             _set(dz, f"{c}{r}", f'=IF({c}{MROW["is_development"]}=1,{c}{MROW["yield_on_cost"]},{c}{MROW["going_in_cap"]})',
@@ -263,7 +263,7 @@ def _write_template_column(dz, c, k, n_markets):
          f'=IF(AND({cc("is_development")}=1,{cc("yield_on_cost")}<>"",{cc("exit_cap")}<>""),'
          f'{cc("yield_on_cost")}-{cc("exit_cap")},"")', fmt=FMT["pct"], align=CENTER)
     _set(dz, cc("best_irr"),
-         f'=IF(COUNT({cc("unlevered_irr")}:{cc("levered_irr")})=0,"",MAX({cc("unlevered_irr")}:{cc("levered_irr")}))',
+         f'=IF(ISNUMBER({cc("levered_irr")}),{cc("levered_irr")},IF(ISNUMBER({cc("unlevered_irr")}),{cc("unlevered_irr")},""))',
          fmt=FMT["pct"], align=CENTER)
     _set(dz, cc("underwriting_yield"),
          f'=IF({cc("is_development")}=1,{cc("yield_on_cost")},{cc("going_in_cap")})', fmt=FMT["pct"], align=CENTER)
