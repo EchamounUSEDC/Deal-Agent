@@ -51,23 +51,33 @@ _ZIP_PRIORITY = ["rolling 12", "rolling12", "t-12", "t12", "trailing", "ttm", "a
 _EXT_RANK = {".xlsx": 0, ".xlsm": 1, ".xls": 2, ".csv": 3}
 
 
+# Pro formas and operating statements live in the first few hundred rows / dozens of
+# columns. Capping the scan keeps imports fast even on huge market-data workbooks.
+_MAX_ROWS = 600
+_MAX_COLS = 40
+
+
 # ----------------------------- loading any format --------------------------------
 def _iter_sheets(path: str):
-    """Yield (sheet_name, rows) for a workbook/csv; rows are lists of cell values."""
+    """Yield (sheet_name, rows) for a workbook/csv; rows are lists of cell values.
+
+    Bounded to the top-left ``_MAX_ROWS`` x ``_MAX_COLS`` of each sheet for speed.
+    """
     ext = os.path.splitext(path)[1].lower()
     if ext in (".xlsx", ".xlsm"):
         import openpyxl
         wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
         for ws in wb.worksheets:
-            yield ws.title, [[c.value for c in row] for row in ws.iter_rows()]
+            rows = ws.iter_rows(max_row=_MAX_ROWS, max_col=_MAX_COLS, values_only=True)
+            yield ws.title, [list(r) for r in rows]
         wb.close()
     elif ext == ".xls":
         import xlrd
         with open(os.devnull, "w") as devnull:
-            book = xlrd.open_workbook(path, logfile=devnull)
+            book = xlrd.open_workbook(path, logfile=devnull, on_demand=True)
         for sh in book.sheets():
-            yield sh.name, [[sh.cell_value(r, c) for c in range(sh.ncols)]
-                            for r in range(sh.nrows)]
+            nr, nc = min(sh.nrows, _MAX_ROWS), min(sh.ncols, _MAX_COLS)
+            yield sh.name, [[sh.cell_value(r, c) for c in range(nc)] for r in range(nr)]
     elif ext == ".csv":
         def _num(x):
             try:
@@ -75,7 +85,12 @@ def _iter_sheets(path: str):
             except ValueError:
                 return x
         with open(path, newline="", encoding="utf-8-sig", errors="replace") as f:
-            yield "csv", [[_num(x) for x in r] for r in csv.reader(f)]
+            rows = []
+            for i, r in enumerate(csv.reader(f)):
+                if i >= _MAX_ROWS:
+                    break
+                rows.append([_num(x) for x in r[:_MAX_COLS]])
+            yield "csv", rows
     else:
         raise ValueError(f"Unsupported file type {ext!r}. Use .xlsx, .xls, .csv, or .zip.")
 
