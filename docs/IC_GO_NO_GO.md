@@ -67,7 +67,7 @@ Nashville"* and it will drive the benchmarker, screener, and market-fit steps.
 - **Dashboard** — pick a deal from the **dropdown**; the verdict, the side-by-side vs
   Springfield & Hamburg, and every gate score recalculate instantly (live `INDEX/MATCH` +
   `IF` formulas that reproduce the engine exactly).
-- **Add a Deal** — instructions + a one-deal input form (read by the macro button).
+- **Add a Deal** — instructions + a one-deal input form.
 - **Deals** — one column per deal. The proven winners are locked; ready-to-fill **"New Deal"
   slots** are pre-wired into the whole engine.
 - **Scores** — the live gate engine for every deal at once.
@@ -81,19 +81,15 @@ Nashville"* and it will drive the benchmarker, screener, and market-fit steps.
    or **drag a pro forma onto it**. It extracts the metrics, **auto-detects the market**
    (fuzzy-matched to the ranking), scores the deal, adds it to `IC_GoNoGo_Dashboard.xlsx`, and
    opens it. Needs Python 3 + this repo + `ic_data/` populated.
-2. **In-Excel Import button.** Save the workbook as `.xlsm`, import `excel/AddDeal.bas`, and
-   assign the **`ImportProForma`** macro to a button. Click it, pick a pro forma — same
-   extraction, all inside Excel, no Python.
-3. **Type it in.** On the Deals tab, find the first empty **New Deal** column (yellow cells),
+2. **Type it in.** On the Deals tab, find the first empty **New Deal** column (yellow cells),
    pick the **Deal type** and the **Market (county)** from the dropdowns, and enter the
    economics. Market stats **auto-fill from the county via `VLOOKUP`**.
-4. **Python one-liner (the tested engine of record).**
+3. **Python one-liner (the tested engine of record).**
    `python -m deal_agent.ic.cli add --proforma X.xlsx --market "<county>"`.
 
 > If a pro forma names its market (a "County"/"Market"/"Location" cell), the market is matched
 > automatically; otherwise the deal still imports — pick the county from the slot's dropdown to
-> complete the market gates. Excel can't embed a macro into an `.xlsx`, so option 2's button is
-> a one-time setup; options 1, 3, and 4 need no macros. All decide GO/No-Go off the same
+> complete the market gates. None of these need Excel macros; all decide GO/No-Go off the same
 > Springfield & Hamburg statics.
 
 ### What files the importer accepts

@@ -6,8 +6,8 @@ Self-contained — no API key, no add-in. Two ways to add a deal and get a verdi
    and the market (a county dropdown), enter ~10 economics, and the GO / CONDITIONAL /
    NO-GO verdict computes instantly against the Springfield & Hamburg statics. The market
    stats (population, growth, pipeline, rank) auto-fill from the county via VLOOKUP.
-2. **Import a pro forma** with `python -m deal_agent.ic.cli add --proforma X.xlsx --market ...`,
-   or the one-click VBA button in the macro-enabled build (see excel/AddDeal.bas).
+2. **Import a pro forma** with `python -m deal_agent.ic.cli add --proforma X.xlsx --market ...`
+   (or the double-click launcher in `launchers/`).
 
 Every gate formula reproduces `schema.py` exactly. Sheets: Dashboard · Read Me · Add a Deal ·
 Deals · Scores · Ranking · Market Ranking · Market Data.
@@ -420,17 +420,13 @@ def _build_add_sheet(ad, slot_cols, has_market):
     lines = [
         ("ADD A DEAL", TITLE, HEADFILL),
         ("", None, None),
-        ("★ DROP A SPREADSHEET IN — click the 'Import Pro Forma' button (macro build). Pick a", B, GREENFILL),
-        ("   pro forma file; it reads the metrics, fills the next slot, and shows the verdict.", B, GREENFILL),
-        ("   (Setup once: save as .xlsm, import excel/AddDeal.bas, assign ImportProForma to a button.)", None, None),
-        ("", None, None),
-        ("Other ways — all decide GO / NO-GO live off the Springfield & Hamburg statics:", B, None),
+        ("All ways decide GO / NO-GO live off the Springfield & Hamburg statics:", B, None),
         ("", None, None),
         ("A) Double-click launchers/'Import Deal' (or drag a file onto it): a file picker opens,", None, None),
-        ("   it auto-detects the market and scores the deal. No Excel macros, no command line.", None, None),
+        ("   it auto-detects the market and scores the deal. No command line.", None, None),
         ("B) Type directly on the Deals tab: find the first empty 'New Deal' column (yellow),", None, None),
         (f"   pick Deal type{cty}, and enter the economics. The market stats auto-fill.", None, None),
-        ("C) Fill the form below, then click the Add Deal button — copies it into the next slot.", None, None),
+        ("C) Import from a terminal: python -m deal_agent.ic.cli add --proforma X.xlsx --market \"<county>\"", None, None),
         ("", None, None),
         (f"Ready-to-fill slots: {', '.join(slot_cols)} (Deals tab).", Font(italic=True), GREYFILL),
     ]
@@ -439,7 +435,7 @@ def _build_add_sheet(ad, slot_cols, has_market):
         if fill is HEADFILL:
             ad.row_dimensions[i+1].height = 26
 
-    # the input form (read by the AddDeal macro; also fine to copy manually)
+    # a one-deal input form (copy its values into the next empty Deals slot)
     _set(ad, f"A{FORM_ROW0-1}", "NEW DEAL FORM", font=H, fill=HEADFILL, align=LEFT)
     _set(ad, f"B{FORM_ROW0-1}", "enter values →", font=H, fill=HEADFILL, align=CENTER)
     for i, (label, field, kind, dd) in enumerate(FORM_FIELDS):

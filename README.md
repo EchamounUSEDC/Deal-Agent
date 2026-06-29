@@ -22,7 +22,7 @@ self-contained **live Excel dashboard**: pick a deal from a dropdown and the ver
 side-by-side vs the winners, and every gate score recalculate instantly (no API key needed).
 **Add any deal** by filling a pre-wired "New Deal" slot — pick a county and the market stats
 auto-fill via `VLOOKUP`, and the GO/No-Go decides live off the Springfield/Hamburg statics
-(or use the one-click `AddDeal` macro / the `cli add` importer).
+(or use the `cli add` importer / the double-click launcher in `launchers/`).
 
 | Agent | Does |
 |-------|------|
