@@ -104,13 +104,13 @@ def _gate_formula(row: int, dc: str) -> str:
     return {
         2: f'=IF(OR({irr}="",{cap}=""),0,IF({irr}>{cap},15,0))',
         3: f'=IF({yld}="",0,IF({yld}>=0.075,15,IF({yld}>=0.065,7.5,0)))',
-        4: f'=IF({opex}="",0,IF({opex}<=0.3,10,IF({opex}<=0.35,5,0)))',
+        4: f'=IF({opex}="",0,IF({opex}<=0.3,10,IF({opex}<=0.35,5,IF({opex}<=0.45,2.5,0))))',
         5: f'=IF({pop}="",0,IF({pop}>=200000,12,0))',
         6: f'=IF({grw}="",5,IF({grw}>=0.05,10,IF({grw}>0,5,0)))',
         7: f'=IF({pipe}="",5,IF({pipe}<=0.05,10,IF({pipe}<=0.1,5,0)))',
         8: f'=IF({irr}="",0,IF({irr}>=IF({isdev}=1,0.15,0.1),13,IF({irr}>=IF({isdev}=1,0.12,0.07),6.5,0)))',
         9: f'=IF({rank}="",4,IF({rank}<=123,8,IF({rank}<=184,4,0)))',
-        10: f'=IF({nrsf}="",3.5,IF(AND({nrsf}>=40000,{nrsf}<=120000),7,IF(AND({nrsf}>=25000,{nrsf}<=150000),3.5,0)))',
+        10: f'=IF({nrsf}="",3.5,IF(AND({nrsf}>=40000,{nrsf}<=120000),7,3.5))',
     }[row]
 
 

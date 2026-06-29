@@ -134,7 +134,9 @@ def _g_opex(d: Deal):
         return 10.0, True, True, f"op-ex {r:.1%} ≤ {OPEX_PREFERRED:.0%}"
     if r <= OPEX_MAX:
         return 5.0, False, True, f"op-ex {r:.1%} ≤ {OPEX_MAX:.0%} but > {OPEX_PREFERRED:.0%}"
-    return 0.0, False, True, f"op-ex {r:.1%} above {OPEX_MAX:.0%}"
+    if r <= 0.45:
+        return 2.5, False, True, f"op-ex {r:.1%} elevated (≤45%)"
+    return 0.0, False, True, f"op-ex {r:.1%} above 45%"
 
 
 def _g_population(d: Deal):
@@ -191,14 +193,17 @@ def _g_market_rank(d: Deal, total_markets: int = 246):
 
 
 def _g_size(d: Deal):
+    # The 75k-NRSF target is a self-storage facility criterion. For deals well outside
+    # that scale (large multifamily / operating businesses) the gate does not apply, so
+    # it is scored neutral (N/A) rather than as a failure.
     n = d.nrsf
     if n is None:
-        return 3.5, False, True, "project size unknown (neutral)"
+        return 3.5, False, True, "project size unknown / N/A (neutral)"
     if NRSF_LO <= n <= NRSF_HI:
         return 7.0, True, True, f"{n:,.0f} NRSF in {NRSF_LO//1000}-{NRSF_HI//1000}k band"
     if 25_000 <= n <= 150_000:
         return 3.5, False, True, f"{n:,.0f} NRSF outside ideal band"
-    return 0.0, False, True, f"{n:,.0f} NRSF far from {NRSF_TARGET//1000}k target"
+    return 3.5, False, True, f"{n:,.0f} NRSF — size gate N/A for this asset (neutral)"
 
 
 GATES = [
