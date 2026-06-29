@@ -81,6 +81,24 @@ def set_text(tf, text, size=None, color=None, bold=None, align=None):
     return p
 
 
+def no_bullet(p):
+    """Strip any inherited bullet glyph from a paragraph (for prose, not lists)."""
+    from pptx.oxml.ns import qn as _qn
+    from pptx.oxml import parse_xml
+    pPr = p._p.get_or_add_pPr()
+    for tag in ("a:buChar", "a:buAutoNum", "a:buNone"):
+        for e in pPr.findall(_qn(tag)):
+            pPr.remove(e)
+    # buNone must precede any defRPr in the schema order
+    bun = parse_xml('<a:buNone xmlns:a="http://schemas.openxmlformats.org/'
+                    'drawingml/2006/main"/>')
+    defRPr = pPr.find(_qn("a:defRPr"))
+    if defRPr is not None:
+        defRPr.addprevious(bun)
+    else:
+        pPr.append(bun)
+
+
 def add_bullets(tf, items, size=16, color=DK, space_after=8):
     """items: list of (text, level) or text. First fills paragraph[0]."""
     tf.word_wrap = True
@@ -149,9 +167,16 @@ def content_slide(title, main_point, bullets=None, body=None, body_size=16):
     if bullets:
         add_bullets(c.text_frame, bullets, size=body_size)
     elif body:
+        # Prose paragraph: no bullet glyph, generous size, anchored near the top.
+        c.top = Inches(1.7)
+        c.height = Inches(4.6)
         tf = c.text_frame
         tf.word_wrap = True
-        set_text(tf, body, size=body_size, color=DK)
+        tf.vertical_anchor = MSO_ANCHOR.TOP
+        p = set_text(tf, body, size=body_size, color=DK)
+        p.line_spacing = 1.15
+        p.space_after = Pt(10)
+        no_bullet(p)
     style_footer(s)
     return s
 
@@ -219,7 +244,7 @@ overview = ("The Co-Gen Special Project Group as well as PDG have considered the
             "CUP as part of the overall delivery of the Casino project.")
 content_slide("Project Overview",
               "USGPD as Developer & Operator of the Central Utility Plant (CUP)",
-              body=overview, body_size=18)
+              body=overview, body_size=20)
 
 # --- 3. DIVIDER: ADVANTAGES --------------------------------------------------
 divider_slide("Advantages of Developing, Owning & Operating the CUP",
