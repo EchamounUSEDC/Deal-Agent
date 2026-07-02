@@ -25,14 +25,14 @@ import * as CANNON from 'cannon-es';
 // Tunables
 // -----------------------------------------------------------------------------
 const CONFIG = {
-  spawnIntervalMs: 95,     // how often a new object drops (lower = denser stream)
-  maxObjects: 200,         // hard cap on live objects
+  spawnIntervalMs: 42,     // how often a new object drops (lower = denser stream)
+  maxObjects: 380,         // hard cap on live objects
   cardChipRatio: 0.42,     // probability a spawned object is a card (vs chip)
-  spawnHeight: 22,         // how high above center objects appear
-  spawnSpreadX: 22,        // horizontal spread of the falling stream
-  spawnSpreadZ: 14,        // depth spread
-  recycleY: -24,           // recycle once an object falls below this
-  gravity: -16,            // gentler gravity reads as heavier, slower fall
+  spawnHeight: 24,         // how high above center objects appear
+  spawnSpreadX: 27,        // horizontal spread of the falling stream
+  spawnSpreadZ: 16,        // depth spread
+  recycleY: -26,           // recycle once an object falls below this
+  gravity: -24,            // heavier: faster, weightier fall
   background: 0x000000,    // pure black screen
 };
 
@@ -480,9 +480,10 @@ function makeChip() {
   const style = CHIP_STYLES[(Math.random() * CHIP_STYLES.length) | 0];
   const face = faceTexture(`chip-${style.value}`, () => TextureCache.chipFace(style));
   const edgeTex = TextureCache.chipEdge(style);
-  // glossy clay-chip look: matte body under a clear lacquer coat
-  const faceMat = new THREE.MeshPhysicalMaterial({ map: face, roughness: 0.4, metalness: 0.05, clearcoat: 0.7, clearcoatRoughness: 0.25, envMapIntensity: 1.3 });
-  const edgeMat = new THREE.MeshPhysicalMaterial({ map: edgeTex, roughness: 0.45, metalness: 0.05, clearcoat: 0.5, clearcoatRoughness: 0.3, envMapIntensity: 1.2 });
+  // glossy chip look via metalness + environment reflections (cheaper than
+  // clearcoat — important for the heavy 4K render)
+  const faceMat = new THREE.MeshStandardMaterial({ map: face, roughness: 0.3, metalness: 0.18, envMapIntensity: 1.25 });
+  const edgeMat = new THREE.MeshStandardMaterial({ map: edgeTex, roughness: 0.4, metalness: 0.18, envMapIntensity: 1.15 });
   const mesh = new THREE.Mesh(chipGeo, [edgeMat, faceMat, faceMat]); // side, top, bottom
 
   const body = new CANNON.Body({ mass: 1.1, material: pieceMat });
@@ -541,7 +542,7 @@ function dealBurst(n = 24) { for (let i = 0; i < n; i++) setTimeout(spawn, i * 3
 const dbs = renderer.getDrawingBufferSize(new THREE.Vector2());
 const msaaTarget = new THREE.WebGLRenderTarget(dbs.x, dbs.y, {
   type: THREE.HalfFloatType,
-  samples: 8,                 // 8x MSAA
+  samples: 2,                 // 2x MSAA — clean enough at native 4K, keeps render feasible
 });
 const composer = new EffectComposer(renderer, msaaTarget);
 composer.addPass(new RenderPass(scene, camera));
@@ -587,10 +588,9 @@ function step(now, dt, render = true) {
     for (let i = pieces.length - 1; i >= 0; i--) if (pieces[i].dead) pieces.splice(i, 1);
   }
 
-  // gentle camera sway — keeps it alive without implying the pieces curve
-  const t = now * 0.00012;
-  camera.position.x = Math.sin(t) * 2.2;
-  camera.position.y = 3 + Math.sin(t * 0.7) * 1.0;
+  // static camera — required for a truly seamless big-screen loop (a moving
+  // camera would not match across the loop seam)
+  camera.position.set(0, 3, 26);
   camera.lookAt(0, 1, 0);
 
   if (render) composer.render();
