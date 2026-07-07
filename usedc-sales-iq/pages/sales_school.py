@@ -18,6 +18,7 @@ import pandas as pd
 import streamlit as st
 
 from pages.sales_coach import CLOSING_TECHNIQUES, DISCOVERY_QUESTIONS, REBUTTALS
+from utils import research
 from utils.ai import generate_json, is_live
 from utils.database import calls_df, rep_names
 from utils.sample_data import SKILL_AREAS
@@ -246,10 +247,6 @@ INVESTOR_SCRIPTS = {
     ],
 }
 
-EMPATHY_WORDS = ("understand", "fair", "hear you", "makes sense", "appreciate",
-                 "great question", "i get")
-NEXT_STEP_WORDS = ("calendar", "schedule", "tuesday", "thursday", "book",
-                   "next step", "follow-up", "follow up", "15 minutes")
 
 WEEK_THEMES = {
     "discovery": (
@@ -420,37 +417,14 @@ Each "why" must cite the profile. Keep lessons under 120 words.
 # Roleplay engine
 # ---------------------------------------------------------------------------
 
-def _coach_feedback(user_msg: str) -> tuple[int, list[str]]:
-    """Deterministic response scoring: question, empathy, brevity, next step."""
-    msg = user_msg.lower()
-    score, notes = 40, []
-    if "?" in user_msg:
-        score += 20
-        notes.append("✅ You handed the turn back with a question — that keeps control.")
-    else:
-        notes.append("⚠️ No question in your response. End with one so the investor keeps talking.")
-    if any(w in msg for w in EMPATHY_WORDS):
-        score += 15
-        notes.append("✅ You acknowledged the concern before answering.")
-    else:
-        notes.append("⚠️ Acknowledge the concern first ('that's fair…') — investors need to feel heard.")
-    if len(user_msg) <= 320:
-        score += 15
-        notes.append("✅ Tight and conversational — no monologue.")
-    else:
-        notes.append("⚠️ That's a monologue. Cut it in half and check in sooner.")
-    if any(w in msg for w in NEXT_STEP_WORDS):
-        score += 10
-        notes.append("✅ You moved toward a concrete next step.")
-    return min(score, 100), notes
-
-
 def _roleplay_turn(scenario: str, history: list[dict], user_msg: str, turn: int) -> dict:
     script = INVESTOR_SCRIPTS[scenario]
-    score, notes = _coach_feedback(user_msg)
+    # The research engine reacts to the utterance — every note cites its source.
+    score, notes, flags = research.score_response(user_msg)
     demo = {
         "score": score,
-        "feedback": " ".join(notes),
+        "feedback": "  \n".join(notes),
+        "flags": flags,
         "investor_reply": script[turn] if turn < len(script) else "",
         "done": turn >= len(script),
     }
@@ -464,14 +438,20 @@ whose objection is: "{scenario}". The rep just said: "{user_msg}"
 Conversation so far:
 {transcript}
 
-Return JSON: {{"score": 0-100 for the rep's last response,
-"feedback": "2-3 sentences of coaching on that response",
-"investor_reply": "your next in-character line (empty string if the
-conversation has reached a natural close)", "done": true/false}}.
-Stay in character, escalate realistically, and reward acknowledgment,
-open questions, brevity, and concrete next steps.
+The deterministic research engine scored this response {score}/100 with these
+notes:
+{chr(10).join(notes)}
+
+Return JSON: {{"score": 0-100 (stay within 15 points of the engine score unless
+you see something it missed), "feedback": "2-3 sentences of coaching that keep
+the engine's research citations", "investor_reply": "your next in-character
+line (empty string if the conversation has reached a natural close)",
+"done": true/false}}. Stay in character and escalate realistically. React the
+way the research library in your instructions says to.
 """
-    return generate_json(prompt, fallback=demo)
+    result = generate_json(prompt, fallback=demo)
+    result.setdefault("flags", flags)
+    return result
 
 
 def _render_roleplay(prof: dict) -> None:
@@ -521,8 +501,11 @@ def _render_roleplay(prof: dict) -> None:
         state["messages"].append({"role": "rep", "text": user_msg})
         result = _roleplay_turn(scenario, state["messages"], user_msg, turn)
         state["scores"].append(int(result.get("score", 50)))
+        feedback = result.get("feedback", "")
+        for flag in result.get("flags") or []:
+            feedback += f"  \n🚫 {flag}"
         state["messages"].append(
-            {"role": "coach", "text": result.get("feedback", ""),
+            {"role": "coach", "text": feedback,
              "score": int(result.get("score", 50))}
         )
         if result.get("investor_reply"):
@@ -587,6 +570,99 @@ def _render_quiz(prof: dict) -> None:
 
 
 # ---------------------------------------------------------------------------
+# The AI's brain — the research library it trains on, and the scoring lab
+# ---------------------------------------------------------------------------
+
+def _render_brain() -> None:
+    st.markdown(
+        "The coaching AI doesn't improvise — it **trains itself on a tiered "
+        "research library** (peer-reviewed studies, regulatory text, and "
+        "industry data) and reacts to calls the way the evidence says to. "
+        "The same engine runs everywhere: the roleplay coach, the call scorer, "
+        "and every live-AI prompt carries this library as grounding."
+    )
+
+    c1, c2, c3 = st.columns(3)
+    active = sum(1 for c in research.CATEGORIES if c["status"] == "active")
+    partial = sum(1 for c in research.CATEGORIES if c["status"] == "partial")
+    c1.metric("Scoring categories", len(research.CATEGORIES))
+    c2.metric("Active on today's data", f"{active} + {partial} proxy")
+    c3.metric("Research sources", len(research.SOURCES))
+
+    st.markdown("#### The 20-category scoring architecture")
+    st.caption(
+        "Weights follow evidence strength, not importance: High = 1.0 "
+        "(peer-reviewed/regulatory), Medium = 0.7 (credible industry data), "
+        "Low = 0.3 (thin evidence — coaching visibility only). Compliance is a "
+        "**gate, not a score**: a hard flag forces human review no matter how "
+        "well the call scored. Categories marked ⚪ activate as the Call "
+        "Analyzer starts writing transcripts and audio features."
+    )
+    st.dataframe(pd.DataFrame(research.category_table()), width="stretch",
+                 hide_index=True)
+
+    st.markdown("#### Source library")
+    st.caption("Tier 1 = peer-reviewed, regulatory, or primary research. "
+               "Tier 2 = credible industry research, disclosed as such.")
+    for sid, (citation, tier) in research.SOURCES.items():
+        st.markdown(f"- **T{tier}** · {citation}")
+
+
+def _render_scoring_lab(rep: str, team_df: pd.DataFrame) -> None:
+    st.caption(
+        "Pick one of your calls and watch the AI react to it: every category "
+        "score cites the research behind it, the composite is confidence-"
+        "weighted, and compliance violations override everything."
+    )
+    d = team_df[team_df["rep_name"] == rep].head(15)
+    if d.empty:
+        st.info("No calls for this rep yet.")
+        return
+    options = {
+        f"{r.call_time:%b %d, %H:%M} — {r.customer_name} · {r.product_interest} · {r.outcome}": r.Index
+        for r in d.itertuples()
+    }
+    label = st.selectbox("Call to score", list(options))
+    row = d.loc[options[label]].to_dict()
+
+    result = research.score_call(row)
+
+    left, right = st.columns([1, 2])
+    with left:
+        if result["review_required"]:
+            st.metric("Composite score", "⚠️ held")
+        else:
+            st.metric("Composite score", f"{result['composite']}/5"
+                      if result["composite"] is not None else "—")
+        st.caption("Σ(score × confidence weight) / Σ(weights)")
+    with right:
+        if result["flags"]:
+            for f in result["flags"]:
+                st.error(f"🚫 {f}")
+            st.caption(
+                "Compliance is a gate: flags route the call to human review and "
+                "suppress the composite, per FINRA's fair-and-balanced standard."
+            )
+        else:
+            st.success("No compliance flags — fair-and-balanced screens passed "
+                       "(FINRA 2210 language checks).")
+
+    st.markdown(f"*Key line from this call:* “{row.get('transcript_snippet', '')}”")
+
+    for cat in result["categories"]:
+        with st.container(border=True):
+            head, bar = st.columns([2, 3])
+            with head:
+                st.markdown(f"**{cat['name']}**  ·  {cat['score']}/5")
+                st.caption(f"{cat['confidence'].capitalize()} confidence "
+                           f"(weight {cat['weight']})")
+            with bar:
+                st.progress(cat["score"] / 5)
+                st.caption(cat["note"])
+                st.caption(f"📎 {cat['source']}")
+
+
+# ---------------------------------------------------------------------------
 # UI
 # ---------------------------------------------------------------------------
 
@@ -612,10 +688,16 @@ def render_sales_school() -> None:
     tip = DAILY_TIPS[date.today().toordinal() % len(DAILY_TIPS)]
     st.info(f"💡 **Today's tip:** {tip}")
 
-    tab_cur, tab_rp, tab_quiz, tab_pb, tab_ted = st.tabs(
-        ["📚 My curriculum", "🎭 Objection roleplay", "📝 Quiz",
-         "📖 Playbook", "🎤 Talks worth 18 minutes"]
+    tab_brain, tab_lab, tab_rp, tab_cur, tab_quiz, tab_pb = st.tabs(
+        ["🧠 How the AI coaches", "🩺 Score a call", "🎭 Objection roleplay",
+         "📚 My curriculum", "📝 Quiz", "📖 Playbook"]
     )
+
+    with tab_brain:
+        _render_brain()
+
+    with tab_lab:
+        _render_scoring_lab(rep, team_df)
 
     with tab_cur:
         weeks = _curriculum(prof)
@@ -637,7 +719,19 @@ def render_sales_school() -> None:
         _render_quiz(prof)
 
     with tab_pb:
-        st.caption("The playbook every USEDC call runs on.")
+        st.caption("The playbook every USEDC call runs on — each entry tied to "
+                   "its research anchor.")
+        st.markdown("#### 🧩 Advisor pain-point playbooks")
+        st.caption("Where the research says conversations create real planning "
+                   "value — with the honest caveats the evidence requires.")
+        for pp in research.PAIN_POINTS:
+            with st.expander(pp["name"]):
+                st.markdown(pp["why"])
+                st.markdown("**Discovery questions:**")
+                for q in pp["questions"]:
+                    st.markdown(f"- {q}")
+                st.warning(pp["caution"])
+                st.caption(f"📎 {research.cite(pp['anchor'])}")
         st.markdown("#### 🔍 Discovery questions")
         for q in DISCOVERY_QUESTIONS:
             st.markdown(f"- {q}")
@@ -649,9 +743,7 @@ def render_sales_school() -> None:
         st.markdown("#### 🤝 Closing techniques")
         for name, how in CLOSING_TECHNIQUES:
             st.markdown(f"**{name}** — {how}")
-
-    with tab_ted:
-        st.caption("Five talks, summarized, with the sales application spelled out.")
+        st.markdown("#### 🎤 Talks worth 18 minutes")
         for talk in TED_TALKS:
             with st.container(border=True):
                 st.markdown(f"**{talk['title']}**  ·  {talk['length']}")

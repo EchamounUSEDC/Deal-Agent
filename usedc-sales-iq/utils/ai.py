@@ -16,14 +16,20 @@ import json
 import os
 from typing import Any
 
+from utils.research import principles_digest
+
 DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
+# Every live prompt carries the research digest, so generated coaching is
+# grounded in the same source library as the deterministic scoring engine
+# (utils/research.py) — the AI reacts to calls the way the research says to.
 COACH_SYSTEM = (
-    "You are an elite B2C sales coach for USEDC, a US energy development "
+    "You are an elite sales coach for USEDC, a US energy development "
     "company whose reps sell energy investment programs (income funds, "
-    "drilling partnerships, 1031 exchanges) to accredited investors by phone. "
-    "You are direct, specific, and encouraging. Ground every point in the "
-    "call statistics you are given — never invent numbers."
+    "drilling partnerships, 1031 exchanges) to accredited investors and "
+    "financial advisors by phone. You are direct, specific, and encouraging. "
+    "Ground every point in the call statistics you are given — never invent "
+    "numbers.\n\n" + principles_digest()
 )
 
 
