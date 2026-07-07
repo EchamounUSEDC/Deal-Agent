@@ -29,7 +29,7 @@ every chart and coaching view works immediately.
 
 | Tab | File | Highlights |
 |---|---|---|
-| 🎯 Sales Coach | `pages/sales_coach.py` | Per-rep AI coaching report grounded in real call stats: score gauge, weekly score trend, strengths/weaknesses, missed opportunities, "said vs. try instead" rewrites, discovery questions, closing techniques, weekly goals, manager notes saved to DB |
+| 🎯 Sales Coach | `pages/sales_coach.py` | Per-rep AI coaching report grounded in real call stats: score gauge, weekly score trend, **delivery signals** ("You interrupted investors 6 times this week", pace vs recommended, explanation length vs top performers, talk ratio, open-ended questions), skill-area profile, strengths/weaknesses, missed opportunities, "said vs. try instead" rewrites, discovery questions, closing techniques, weekly goals, manager notes saved to DB |
 | 📊 Team Trends | `pages/team_trends.py` *(next)* | Auto-computed headline findings ("Tuesday afternoons convert best"), day×hour conversion heatmap, product interest & objection trend lines, calls per rep, territory conversion, duration distribution, leaderboard |
 | 🎓 Sales School | `pages/sales_school.py` *(next)* | Personalized 4-week curriculum, weekly lesson + daily tip, **interactive objection roleplay** (AI plays the advisor and coaches your responses), scored quizzes, best-practices playbook, TED-Talk summaries |
 
@@ -38,7 +38,10 @@ every chart and coaching view works immediately.
 - The `calls` table schema in `utils/database.py` is the shared contract —
   Asa's Call Analyzer writes rows, my tabs read them. Review it together.
   Rows carry a `source` column (`analyzed` vs `sample`) so demo data and
-  real data never mix.
+  real data never mix. Delivery metrics (`interruptions`, `talk_ratio`,
+  `words_per_minute`, `open_questions`, `avg_monologue_sec`, `skills`)
+  are nullable — the Call Analyzer fills what it can and Sales Coach
+  degrades gracefully when they're missing.
 - `utils/ai.py` exposes `generate()` / `generate_json()` — Asa's tabs can
   use the same functions.
 - `app.py` already routes to `render_call_analyzer()`,

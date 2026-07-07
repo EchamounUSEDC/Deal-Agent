@@ -32,6 +32,13 @@ CREATE TABLE IF NOT EXISTS calls (
     score              INTEGER,                     -- 0-100 call quality
     summary            TEXT,
     transcript_snippet TEXT,                        -- a line the rep actually said
+    -- Delivery / behavioral metrics (filled by the Call Analyzer; nullable)
+    interruptions      INTEGER,                     -- times the rep talked over the investor
+    talk_ratio         REAL,                        -- share of call the rep spent talking (0-1)
+    words_per_minute   REAL,                        -- rep speaking pace
+    open_questions     INTEGER,                     -- open-ended questions the rep asked
+    avg_monologue_sec  REAL,                        -- avg uninterrupted rep explanation length
+    skills             TEXT,                        -- JSON {area: 0-100} sub-scores
     source             TEXT NOT NULL DEFAULT 'analyzed',  -- analyzed | sample
     created_at         TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -58,9 +65,25 @@ def get_conn() -> sqlite3.Connection:
     return conn
 
 
+# Columns added after the first release — init_db() back-fills them into
+# existing databases so a pull never requires deleting data/sales_iq.db.
+_MIGRATIONS = {
+    "interruptions": "INTEGER",
+    "talk_ratio": "REAL",
+    "words_per_minute": "REAL",
+    "open_questions": "INTEGER",
+    "avg_monologue_sec": "REAL",
+    "skills": "TEXT",
+}
+
+
 def init_db() -> None:
     with get_conn() as conn:
         conn.executescript(_SCHEMA)
+        existing = {r["name"] for r in conn.execute("PRAGMA table_info(calls)")}
+        for col, sqltype in _MIGRATIONS.items():
+            if col not in existing:
+                conn.execute(f"ALTER TABLE calls ADD COLUMN {col} {sqltype}")
 
 
 def count_calls() -> int:
@@ -73,13 +96,16 @@ def insert_calls(rows: list[dict]) -> None:
     cols = (
         "call_time", "rep_name", "territory", "customer_name", "duration_min",
         "product_interest", "objections", "outcome", "score", "summary",
-        "transcript_snippet", "source",
+        "transcript_snippet", "interruptions", "talk_ratio", "words_per_minute",
+        "open_questions", "avg_monologue_sec", "skills", "source",
     )
     prepared = []
     for r in rows:
         r = dict(r)
         if isinstance(r.get("objections"), (list, tuple)):
             r["objections"] = json.dumps(list(r["objections"]))
+        if isinstance(r.get("skills"), dict):
+            r["skills"] = json.dumps(r["skills"])
         prepared.append(tuple(r.get(c) for c in cols))
     with get_conn() as conn:
         conn.executemany(
@@ -106,7 +132,13 @@ def calls_df(rep_name: str | None = None, days: int | None = None) -> pd.DataFra
         df = pd.read_sql_query(query, conn, params=params)
     if not df.empty:
         df["call_time"] = pd.to_datetime(df["call_time"])
-        df["objections"] = df["objections"].apply(lambda s: json.loads(s) if s else [])
+        # NULLs arrive as NaN (truthy!), so gate on isinstance, not bool
+        df["objections"] = df["objections"].apply(
+            lambda s: json.loads(s) if isinstance(s, str) and s else []
+        )
+        df["skills"] = df["skills"].apply(
+            lambda s: json.loads(s) if isinstance(s, str) and s else {}
+        )
     return df
 
 

@@ -146,7 +146,112 @@ def _compute_stats(rep_df: pd.DataFrame, team_df: pd.DataFrame) -> dict:
         ).sum()
     )
     stats["short_calls"] = int((rep_df["duration_min"] < 8).sum())
+
+    stats.update(_delivery_stats(rep_df, team_df))
     return stats
+
+
+RECOMMENDED_WPM = 150  # comfortable phone-sales pace
+
+
+def _delivery_stats(rep_df: pd.DataFrame, team_df: pd.DataFrame) -> dict:
+    """How the rep sounds on calls — pace, interruptions, listening,
+    question quality, skill-area profile. NULL-safe so analyzed calls
+    without these metrics don't break anything."""
+    d = rep_df.dropna(subset=["interruptions"])
+    if d.empty:
+        return {"has_delivery": False}
+
+    latest = rep_df["call_time"].max()
+    this_week = d[d["call_time"] >= latest - pd.Timedelta(days=7)]
+
+    # "Top performers" = the top third of reps by conversion rate.
+    conv_by_rep = team_df.groupby("rep_name")["outcome"].agg(
+        lambda s: (s == "converted").mean()
+    )
+    top_reps = conv_by_rep.nlargest(max(1, len(conv_by_rep) // 3)).index
+    top_df = team_df[team_df["rep_name"].isin(top_reps)].dropna(subset=["avg_monologue_sec"])
+
+    wpm = d["words_per_minute"].mean()
+    monologue = d["avg_monologue_sec"].mean()
+    top_monologue = top_df["avg_monologue_sec"].mean() if not top_df.empty else monologue
+
+    skills_df = pd.DataFrame([s for s in d["skills"] if s])
+    skill_areas = (
+        skills_df.mean().round(1).sort_values(ascending=False).to_dict()
+        if not skills_df.empty else {}
+    )
+
+    team_d = team_df.dropna(subset=["interruptions"])
+    return {
+        "has_delivery": True,
+        "interruptions_this_week": int(this_week["interruptions"].sum()),
+        "interruptions_per_call": round(d["interruptions"].mean(), 1),
+        "team_interruptions_per_call": round(team_d["interruptions"].mean(), 1),
+        "wpm": round(wpm, 0),
+        "wpm_vs_recommended_pct": round(100 * (wpm - RECOMMENDED_WPM) / RECOMMENDED_WPM, 0),
+        "talk_ratio_pct": round(100 * d["talk_ratio"].mean(), 0),
+        "team_talk_ratio_pct": round(100 * team_d["talk_ratio"].mean(), 0),
+        "open_q_per_call": round(d["open_questions"].mean(), 1),
+        "team_open_q_per_call": round(team_d["open_questions"].mean(), 1),
+        "monologue_sec": round(monologue, 0),
+        "monologue_vs_top_pct": round(100 * (monologue - top_monologue) / top_monologue, 0)
+        if top_monologue else 0.0,
+        "skill_areas": skill_areas,
+    }
+
+
+def _delivery_signals(s: dict) -> list[str]:
+    """The plain-sentence coaching feed: every line is a computed fact."""
+    if not s.get("has_delivery"):
+        return []
+    lines = []
+
+    n = s["interruptions_this_week"]
+    lines.append(
+        "You didn't interrupt investors once this week — keep it up."
+        if n == 0 else f"You interrupted investors {n} time{'s' if n != 1 else ''} this week."
+    )
+
+    mono = s["monologue_vs_top_pct"]
+    if mono > 5:
+        lines.append(f"Average explanation length is {mono:.0f}% longer than top performers.")
+    elif mono < -5:
+        lines.append(f"Average explanation length is {-mono:.0f}% shorter than top performers — nice and tight.")
+    else:
+        lines.append("Explanation length matches top performers.")
+
+    pace = s["wpm_vs_recommended_pct"]
+    if pace > 3:
+        lines.append(f"You speak {pace:.0f}% faster than recommended (~{RECOMMENDED_WPM} wpm).")
+    elif pace < -3:
+        lines.append(f"You speak {-pace:.0f}% slower than recommended (~{RECOMMENDED_WPM} wpm).")
+    else:
+        lines.append(f"Your pace is right in the recommended range (~{RECOMMENDED_WPM} wpm).")
+
+    if s["skill_areas"]:
+        lines.append(f"Your strongest area is {next(iter(s['skill_areas']))}.")
+
+    lines.append(f"Focus this week on {_focus_recommendation(s)}.")
+    return lines
+
+
+def _focus_recommendation(s: dict) -> str:
+    """Pick the behavioral gap with the most room to close vs the team."""
+    gaps = [
+        (s["team_open_q_per_call"] - s["open_q_per_call"],
+         "asking more open-ended questions"),
+        (s["interruptions_per_call"] - s["team_interruptions_per_call"],
+         "letting investors finish before you jump in"),
+        ((s["talk_ratio_pct"] - s["team_talk_ratio_pct"]) / 10,
+         f"listening more — you talk {s['talk_ratio_pct']:.0f}% of the call"),
+        (s["wpm_vs_recommended_pct"] / 15, "slowing your pace down"),
+        (s["monologue_vs_top_pct"] / 25, "tightening your explanations"),
+    ]
+    worst = max(gaps, key=lambda g: g[0])
+    if worst[0] <= 0 and s["skill_areas"]:
+        return f"building on your {list(s['skill_areas'])[-1]}"  # weakest skill area
+    return worst[1]
 
 
 # ---------------------------------------------------------------------------
@@ -193,6 +298,18 @@ def _demo_report(s: dict) -> dict:
             f"Calls average {s['avg_duration']} min vs {s['team_avg_duration']} for the "
             "team — short calls usually mean discovery is getting skipped."
         )
+    if s.get("has_delivery"):
+        if s["interruptions_per_call"] > s["team_interruptions_per_call"]:
+            weaknesses.append(
+                f"Interrupts {s['interruptions_per_call']}× per call vs "
+                f"{s['team_interruptions_per_call']} team average — investors buy "
+                "when they feel heard."
+            )
+        if s["open_q_per_call"] < s["team_open_q_per_call"]:
+            weaknesses.append(
+                f"Asks {s['open_q_per_call']} open-ended questions per call vs "
+                f"{s['team_open_q_per_call']} for the team — more questions, more signal."
+            )
 
     missed = []
     if s["stalled_no_next_step"]:
@@ -232,6 +349,8 @@ def _demo_report(s: dict) -> dict:
             f"Run the '{s['top_objections'][0][0]}' rebuttal in roleplay twice this "
             "week (Sales School tab) until it scores 80+."
         )
+    if s.get("has_delivery"):
+        goals.append(f"Delivery focus: {_focus_recommendation(s)}.")
     goals.append("Ask at least 3 discovery questions before presenting any product.")
 
     return {
@@ -254,8 +373,11 @@ def _demo_report(s: dict) -> dict:
 def _coaching_report(s: dict) -> dict:
     fallback = _demo_report(s)
     grounding = {k: v for k, v in s.items() if k != "weekly_scores"}
+    grounding["delivery_signals"] = _delivery_signals(s)
     prompt = f"""
-Write a coaching report for sales rep {s['rep']} using ONLY these call statistics:
+Write a coaching report for sales rep {s['rep']} using ONLY these call statistics
+(delivery_signals are pre-computed facts about how the rep sounds on calls —
+build on them, do not contradict them):
 
 {grounding}
 
@@ -328,6 +450,30 @@ def render_sales_coach() -> None:
             st.plotly_chart(charts.weekly_trend(s["weekly_scores"]), width="stretch")
         else:
             st.info("Not enough history yet for a weekly trend.")
+
+    signals = _delivery_signals(s)
+    if signals:
+        sig_col, skill_col = st.columns([3, 2])
+        with sig_col:
+            st.subheader("🎙️ Delivery signals")
+            st.caption("Computed from how this rep sounds on calls — not from outcomes.")
+            for line in signals:
+                st.markdown(f"- {line}")
+            st.caption(
+                f"Talk ratio {s['talk_ratio_pct']:.0f}% (team {s['team_talk_ratio_pct']:.0f}%) · "
+                f"{s['open_q_per_call']} open questions/call (team {s['team_open_q_per_call']}) · "
+                f"{s['wpm']:.0f} wpm · explanations avg {s['monologue_sec']:.0f}s"
+            )
+        with skill_col:
+            if s["skill_areas"]:
+                st.plotly_chart(
+                    charts.hbar(
+                        list(s["skill_areas"].keys()),
+                        list(s["skill_areas"].values()),
+                        "Skill areas (avg score)",
+                    ),
+                    width="stretch",
+                )
 
     with st.spinner("Generating coaching report…" if is_live() else ""):
         report = _coaching_report(s)

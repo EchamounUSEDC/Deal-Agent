@@ -17,19 +17,28 @@ from __future__ import annotations
 import random
 from datetime import datetime, time, timedelta
 
-from utils.database import count_calls, insert_calls
+from utils.database import count_calls, get_conn, insert_calls
 
 _SEED = 42
 _DAYS = 90
 
-# (name, territory, skill 0-1, weakness objection bias)
+SKILL_AREAS = [
+    "discovery",
+    "relationship building",
+    "product knowledge",
+    "objection handling",
+    "closing",
+]
+
+# (name, territory, skill 0-1, weakness objection bias,
+#  base words/min, interruptions-per-call tendency, strongest skill area)
 REPS = [
-    ("Priya Raman",   "Midwest",   0.72, "Fees feel high"),
-    ("Marcus Bell",   "Northeast", 0.63, "Liquidity concerns"),
-    ("Elena Torres",  "West",      0.58, "Market volatility"),
-    ("Dana Whitfield", "Southeast", 0.54, "Needs spouse/advisor sign-off"),
-    ("Jake Sullivan", "Southwest", 0.47, "Timing — next quarter"),
-    ("Tom Okafor",    "Northeast", 0.43, "Fees feel high"),
+    ("Priya Raman",   "Midwest",   0.72, "Fees feel high",                148, 0.4, "closing"),
+    ("Marcus Bell",   "Northeast", 0.63, "Liquidity concerns",            171, 1.3, "product knowledge"),
+    ("Elena Torres",  "West",      0.58, "Market volatility",             154, 0.8, "relationship building"),
+    ("Dana Whitfield", "Southeast", 0.54, "Needs spouse/advisor sign-off", 143, 0.7, "discovery"),
+    ("Jake Sullivan", "Southwest", 0.47, "Timing — next quarter",         167, 1.7, "relationship building"),
+    ("Tom Okafor",    "Northeast", 0.43, "Fees feel high",                176, 2.1, "product knowledge"),
 ]
 
 PRODUCTS = [
@@ -94,7 +103,7 @@ def build_sample_calls(now: datetime | None = None) -> list[dict]:
         day = start + timedelta(days=day_offset)
         if day.weekday() >= 5:  # weekends off
             continue
-        for name, territory, skill, weak_bias in REPS:
+        for name, territory, skill, weak_bias, wpm_base, interrupt_bias, strong_area in REPS:
             for _ in range(rng.randint(1, 4)):
                 dt = datetime.combine(
                     day, time(hour=rng.randint(9, 17), minute=rng.randrange(0, 60))
@@ -119,6 +128,18 @@ def build_sample_calls(now: datetime | None = None) -> list[dict]:
                 else:
                     snippet = rng.choice(STRONG_LINES)
 
+                # Delivery metrics — correlated with skill so the coaching
+                # signals ("you interrupt", "you talk too fast") are earned.
+                interruptions = max(0, round(rng.gauss(interrupt_bias, 0.9)))
+                wpm = round(max(115.0, rng.gauss(wpm_base, 8)), 1)
+                talk_ratio = round(min(0.85, max(0.35, rng.gauss(0.72 - skill * 0.25, 0.06))), 2)
+                open_questions = max(0, round(rng.gauss(1.2 + skill * 3.8, 1.2)))
+                avg_monologue = round(max(18.0, rng.gauss(95 - skill * 55, 12)), 1)
+                skills = {
+                    area: int(max(5, min(99, score + rng.gauss(0, 6) + (9 if area == strong_area else 0))))
+                    for area in SKILL_AREAS
+                }
+
                 product = rng.choice(PRODUCTS)
                 customer = f"{rng.choice(FIRST)} {rng.choice(LAST)}"
                 duration = round(max(4.0, rng.gauss(16 + skill * 10, 7)), 1)
@@ -142,14 +163,33 @@ def build_sample_calls(now: datetime | None = None) -> list[dict]:
                     "score": score,
                     "summary": summary,
                     "transcript_snippet": snippet,
+                    "interruptions": interruptions,
+                    "talk_ratio": talk_ratio,
+                    "words_per_minute": wpm,
+                    "open_questions": open_questions,
+                    "avg_monologue_sec": avg_monologue,
+                    "skills": skills,
                     "source": "sample",
                 })
     return rows
 
 
 def seed_if_empty() -> bool:
-    """Seed demo data on first launch only. Returns True if it seeded."""
-    if count_calls() > 0:
-        return False
-    insert_calls(build_sample_calls())
-    return True
+    """Seed demo data on first launch only. Returns True if it seeded.
+
+    Also refreshes SAMPLE rows generated before the delivery metrics
+    existed (their `interruptions` is NULL) — analyzed rows are never
+    touched."""
+    if count_calls() == 0:
+        insert_calls(build_sample_calls())
+        return True
+    with get_conn() as conn:
+        stale = conn.execute(
+            "SELECT COUNT(*) FROM calls WHERE source = 'sample' AND interruptions IS NULL"
+        ).fetchone()[0]
+    if stale:
+        with get_conn() as conn:
+            conn.execute("DELETE FROM calls WHERE source = 'sample'")
+        insert_calls(build_sample_calls())
+        return True
+    return False
