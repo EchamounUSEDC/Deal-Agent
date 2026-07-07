@@ -39,8 +39,11 @@ def apply_theme(fig: go.Figure, height: int = 320) -> go.Figure:
         font=dict(family=FONT, color=INK_2, size=13),
         margin=dict(l=8, r=8, t=36, b=8),
         hoverlabel=dict(bgcolor="#ffffff", font=dict(family=FONT, color=INK)),
-        title=dict(font=dict(color=INK, size=15)),
     )
+    # Style the title only if one exists — a font-only title renders as
+    # a literal "undefined" in plotly.js.
+    if fig.layout.title.text:
+        fig.update_layout(title_font=dict(color=INK, size=15))
     fig.update_xaxes(gridcolor=GRID, linecolor=AXIS, tickfont=dict(color=MUTED), zeroline=False)
     fig.update_yaxes(gridcolor=GRID, linecolor=AXIS, tickfont=dict(color=MUTED), zeroline=False)
     return fig
