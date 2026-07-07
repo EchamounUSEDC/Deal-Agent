@@ -91,6 +91,65 @@ def weekly_trend(weekly: pd.DataFrame, y_title: str = "Avg score") -> go.Figure:
     return apply_theme(fig)
 
 
+def conversion_heatmap(z: list[list], x_labels: list[str], y_labels: list[str],
+                       counts: list[list], title: str) -> go.Figure:
+    """Day×hour conversion-rate heatmap. Sequential single hue (magnitude);
+    cells with too little data arrive as None and render as gaps."""
+    fig = go.Figure(go.Heatmap(
+        z=z,
+        x=x_labels,
+        y=y_labels,
+        customdata=counts,
+        colorscale=[[i / (len(BLUE_RAMP) - 1), c] for i, c in enumerate(BLUE_RAMP)],
+        zmin=0,
+        hoverongaps=False,
+        xgap=2,
+        ygap=2,
+        colorbar=dict(title="Conv %", ticksuffix="%", outlinewidth=0,
+                      tickfont=dict(color=MUTED)),
+        hovertemplate="%{y} %{x} — %{z:.0f}% conversion (%{customdata} calls)<extra></extra>",
+    ))
+    fig.update_layout(title=title)
+    fig.update_yaxes(autorange="reversed")  # Monday on top
+    fig.update_xaxes(side="bottom")
+    return apply_theme(fig, height=340)
+
+
+def multi_line(df, x_col: str, series_cols: list[str], title: str,
+               y_title: str = "") -> go.Figure:
+    """Weekly trend lines for up to 8 series. Colors are assigned by the
+    caller's column order (fixed, never cycled into new hues)."""
+    fig = go.Figure()
+    for i, col in enumerate(series_cols[: len(SERIES)]):
+        fig.add_trace(go.Scatter(
+            x=df[x_col],
+            y=df[col],
+            name=col,
+            mode="lines",
+            line=dict(color=SERIES[i], width=2),
+            hovertemplate="Week of %{x|%b %d}<br>" + col + ": %{y}<extra></extra>",
+        ))
+    fig.update_layout(
+        title=title,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, font=dict(color=INK_2)),
+    )
+    fig.update_yaxes(title=y_title or None, rangemode="tozero")
+    return apply_theme(fig, height=340)
+
+
+def duration_histogram(durations, title: str) -> go.Figure:
+    fig = go.Figure(go.Histogram(
+        x=durations,
+        xbins=dict(size=5),
+        marker=dict(color=BLUE, line=dict(color=SURFACE, width=2)),
+        hovertemplate="%{x} min: %{y} calls<extra></extra>",
+    ))
+    fig.update_layout(title=title, bargap=0.02, showlegend=False)
+    fig.update_xaxes(title="Duration (min)")
+    fig.update_yaxes(title=None)
+    return apply_theme(fig)
+
+
 def hbar(labels: list[str], values: list[float], title: str,
          hover_suffix: str = "") -> go.Figure:
     """Sorted single-hue horizontal bar — magnitude by category."""

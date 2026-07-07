@@ -4,9 +4,9 @@ Sales Coach, Team Trends, and Sales School for the USEDC Sales IQ platform,
 plus lightweight versions of the shared utilities so these tabs run and
 demo standalone today, and merge cleanly with Asa's modules later.
 
-> **Status:** 🎯 Sales Coach is live. 📊 Team Trends and 🎓 Sales School are
-> next — the shell already routes to them and shows a placeholder until the
-> files land in `pages/`.
+> **Status:** 🎯 Sales Coach and 📊 Team Trends are live. 🎓 Sales School is
+> next — the shell already routes to it and shows a placeholder until the
+> file lands in `pages/`.
 
 ## Run it
 
@@ -30,7 +30,7 @@ every chart and coaching view works immediately.
 | Tab | File | Highlights |
 |---|---|---|
 | 🎯 Sales Coach | `pages/sales_coach.py` | Per-rep AI coaching report grounded in real call stats: score gauge, weekly score trend, **delivery signals** ("You interrupted investors 6 times this week", pace vs recommended, explanation length vs top performers, talk ratio, open-ended questions), skill-area profile, strengths/weaknesses, missed opportunities, "said vs. try instead" rewrites, discovery questions, closing techniques, weekly goals, manager notes saved to DB |
-| 📊 Team Trends | `pages/team_trends.py` *(next)* | Auto-computed headline findings ("Tuesday afternoons convert best"), day×hour conversion heatmap, product interest & objection trend lines, calls per rep, territory conversion, duration distribution, leaderboard |
+| 📊 Team Trends | `pages/team_trends.py` | Auto-computed headline findings ("Tuesday afternoons convert best"), day×hour conversion heatmap, product interest & objection trend lines, calls per rep, territory conversion, duration distribution, leaderboard |
 | 🎓 Sales School | `pages/sales_school.py` *(next)* | Personalized 4-week curriculum, weekly lesson + daily tip, **interactive objection roleplay** (AI plays the advisor and coaches your responses), scored quizzes, best-practices playbook, TED-Talk summaries |
 
 ## Merging with Asa
@@ -58,7 +58,7 @@ usedc-sales-iq/
   .streamlit/config.toml  # theme + disables auto page nav
   pages/
     sales_coach.py        # render_sales_coach()
-    team_trends.py        # render_team_trends()   (next)
+    team_trends.py        # render_team_trends()
     sales_school.py       # render_sales_school()  (next)
   utils/
     ai.py                 # generate(), generate_json(), demo fallback
