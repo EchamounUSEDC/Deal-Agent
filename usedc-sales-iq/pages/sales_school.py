@@ -21,6 +21,7 @@ from pages.sales_coach import CLOSING_TECHNIQUES, DISCOVERY_QUESTIONS, REBUTTALS
 from utils import research
 from utils.ai import generate_json, is_live
 from utils.database import calls_df, rep_names
+from utils.mock_calls import MOCK_CALLS, audio_path, call_for_area
 from utils.sample_data import SKILL_AREAS
 
 # ---------------------------------------------------------------------------
@@ -417,8 +418,8 @@ Each "why" must cite the profile. Keep lessons under 120 words.
 # Roleplay engine
 # ---------------------------------------------------------------------------
 
-def _roleplay_turn(scenario: str, history: list[dict], user_msg: str, turn: int) -> dict:
-    script = INVESTOR_SCRIPTS[scenario]
+def _roleplay_turn(persona: str, script: list[str], history: list[dict],
+                   user_msg: str, turn: int) -> dict:
     # The research engine reacts to the utterance — every note cites its source.
     score, notes, flags = research.score_response(user_msg)
     demo = {
@@ -432,8 +433,8 @@ def _roleplay_turn(scenario: str, history: list[dict], user_msg: str, turn: int)
         return demo
     transcript = "\n".join(f"{m['role']}: {m['text']}" for m in history)
     prompt = f"""
-You are running an objection-handling roleplay. You play a skeptical investor
-whose objection is: "{scenario}". The rep just said: "{user_msg}"
+You are running a sales roleplay. You play {persona}.
+The rep just said: "{user_msg}"
 
 Conversation so far:
 {transcript}
@@ -456,22 +457,44 @@ way the research library in your instructions says to.
 
 def _render_roleplay(prof: dict) -> None:
     st.caption(
-        "The AI plays a skeptical investor. Respond like you're on a live call — "
-        "every reply gets scored and coached."
+        "Respond like you're on a live call — every reply gets scored and "
+        "coached against the research library."
     )
-    default = prof["top_objection"] if prof["top_objection"] in INVESTOR_SCRIPTS else None
-    options = list(INVESTOR_SCRIPTS)
-    scenario = st.selectbox(
-        "Objection to practice",
-        options,
-        index=options.index(default) if default else 0,
-        help="Defaults to the objection your calls hit most often.",
+    mode = st.radio(
+        "Practice mode",
+        ["🎭 Objection drills", "🎧 The Logan calls (recorded series)"],
+        horizontal=True, label_visibility="collapsed",
     )
+
+    if mode.startswith("🎭"):
+        default = prof["top_objection"] if prof["top_objection"] in INVESTOR_SCRIPTS else None
+        options = list(INVESTOR_SCRIPTS)
+        scenario = st.selectbox(
+            "Objection to practice",
+            options,
+            index=options.index(default) if default else 0,
+            help="Defaults to the objection your calls hit most often.",
+        )
+        script = INVESTOR_SCRIPTS[scenario]
+        persona = f'a skeptical investor whose objection is: "{scenario}"'
+    else:
+        picked = st.selectbox("Which call in the series?",
+                              [c["title"] for c in MOCK_CALLS], key="logan_call_pick")
+        call = next(c for c in MOCK_CALLS if c["title"] == picked)
+        st.caption(f"**{call['stage']}** — listen to how Ryan ran it, then run "
+                   "it yourself. The AI plays Logan.")
+        st.audio(str(audio_path(call)))
+        with st.expander("🎧 What to listen for in the recording"):
+            for point in call["listen_for"]:
+                st.markdown(f"- {point}")
+        script = call["advisor_script"]
+        scenario = call["title"]
+        persona = call["persona"]
 
     key = f"rp_{prof['rep']}_{scenario}"
     if key not in st.session_state:
         st.session_state[key] = {
-            "messages": [{"role": "investor", "text": INVESTOR_SCRIPTS[scenario][0]}],
+            "messages": [{"role": "investor", "text": script[0]}],
             "scores": [],
             "done": False,
         }
@@ -499,7 +522,7 @@ def _render_roleplay(prof: dict) -> None:
     if user_msg:
         turn = sum(1 for m in state["messages"] if m["role"] == "rep") + 1
         state["messages"].append({"role": "rep", "text": user_msg})
-        result = _roleplay_turn(scenario, state["messages"], user_msg, turn)
+        result = _roleplay_turn(persona, script, state["messages"], user_msg, turn)
         state["scores"].append(int(result.get("score", 50)))
         feedback = result.get("feedback", "")
         for flag in result.get("flags") or []:
@@ -510,7 +533,7 @@ def _render_roleplay(prof: dict) -> None:
         )
         if result.get("investor_reply"):
             state["messages"].append({"role": "investor", "text": result["investor_reply"]})
-        if result.get("done") or turn >= len(INVESTOR_SCRIPTS[scenario]):
+        if result.get("done") or turn >= len(script):
             state["done"] = True
         st.rerun()
 
@@ -711,6 +734,16 @@ def render_sales_school() -> None:
                 st.markdown("**Drills:**")
                 for d in w["drills"]:
                     st.checkbox(d, key=f"drill_{rep}_{w['week']}_{d[:24]}")
+                case = call_for_area(w.get("area", ""))
+                if case:
+                    st.markdown(f"**🎧 Case study: {case['title']}** — "
+                                f"{case['stage']} (Ryan & Logan mock-call series)")
+                    st.audio(str(audio_path(case)))
+                    st.caption("Listen for:")
+                    for point in case["listen_for"]:
+                        st.markdown(f"- {point}")
+                    st.caption("Then run the same call yourself in the "
+                               "roleplay tab — the AI plays Logan.")
 
     with tab_rp:
         _render_roleplay(prof)
