@@ -1,0 +1,82 @@
+name: IC Analyst — Go/No-Go
+
+# A hands-off complement to the local `/ic` slash command and the ic_watch.py watcher.
+#
+#   • Health canary  — every push that touches the engine, a manual run, and a weekly
+#                       schedule run `--selftest` so the routine can never silently break.
+#   • Deal scoring   — a manual run, or a deal deliberately committed to deals/inbox/,
+#                       scores the deal and returns the reports as a downloadable artifact.
+#
+# NOTE ON CONFIDENTIALITY: deal files under deals/inbox/ are .gitignored on purpose, so a
+# normal push leaves the inbox empty and this workflow is a no-op scorer (the canary still
+# runs). To score a deal in CI you must deliberately commit it (`git add -f`), which uploads
+# that file to GitHub — a conscious choice. Reports are returned as run artifacts, never
+# committed back, so confidential outputs stay out of git history.
+
+on:
+  workflow_dispatch:        # "Run workflow" button — score whatever is in the inbox on demand
+  push:
+    paths:
+      - 'deals/inbox/**'          # a deal was deliberately committed
+      - 'scripts/ic_engine.py'    # engine changed — re-validate
+      - 'scripts/ic_watch.py'
+      - '.github/workflows/ic-analyst.yml'
+  schedule:
+    - cron: '17 13 * * 1'   # Mondays 13:17 UTC — weekly health canary (off the :00 mark)
+
+permissions:
+  contents: read
+
+jobs:
+  ic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install engine dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Only what the IC engine needs — keeps CI fast and reliable.
+          pip install openpyxl pandas numpy-financial pypdf xlrd
+
+      - name: Health canary — compile + selftest
+        run: |
+          python -m py_compile scripts/ic_engine.py scripts/ic_watch.py
+          python scripts/ic_engine.py --selftest
+
+      - name: Score deals committed to the inbox
+        run: |
+          shopt -s nullglob dotglob
+          real=()
+          for f in deals/inbox/*; do
+            [ "$(basename "$f")" = ".gitkeep" ] && continue
+            real+=("$f")
+          done
+          {
+            echo "## IC Analyst — Go/No-Go"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ ${#real[@]} -eq 0 ]; then
+            echo "No deals committed to deals/inbox/ — canary only (engine healthy)." \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "Scoring ${#real[@]} deal(s): ${real[*]}"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          python scripts/ic_engine.py --inbox 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reports (excludes selftest fixtures)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ic-reports
+          path: |
+            deals/reports/*.xlsx
+            !deals/reports/TEST_*.xlsx
+          if-no-files-found: ignore
+          retention-days: 14

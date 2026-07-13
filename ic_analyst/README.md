@@ -34,6 +34,22 @@ scheduling, no setup. It runs the engine, writes the report to `deals/reports/`,
 input to `deals/processed/`, and briefs the committee (verdict, score, driving gates, stress
 result) right in the chat. Use it any time you want an instant Go/No-Go read.
 
+## Hands-off / scheduled — GitHub Action
+
+`.github/workflows/ic-analyst.yml` runs the routine automatically:
+
+- **Health canary** — every push that touches the engine, a manual run, and a weekly
+  schedule run `--selftest`, so `/ic` and the watcher can never silently break.
+- **Deal scoring** — a manual "Run workflow" (Actions tab), or a deal deliberately committed
+  to `deals/inbox/`, scores the deal, prints each verdict in the run summary, and attaches the
+  reports as a downloadable **artifact** (`ic-reports`).
+
+> **Confidentiality:** deal files under `deals/inbox/` are `.gitignored` on purpose, so a normal
+> push leaves the inbox empty (the canary still runs). To score a deal in CI you must
+> deliberately commit it (`git add -f path`), which uploads that file to GitHub — a conscious
+> choice. Reports come back as run artifacts, never committed to git history. For confidential
+> deals, prefer `/ic` or the watcher locally.
+
 ## One-shot / batch
 
 ```bash
