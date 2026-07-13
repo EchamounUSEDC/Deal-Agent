@@ -1,0 +1,34 @@
+# IC Analyst
+
+A virtual investment-committee analyst. Drop a deal spreadsheet into `deals/inbox/`, and it
+scores the deal against a fixed 9-gate Go/No-Go rubric, runs a downside stress test, and
+writes a committee-ready report to `deals/reports/`.
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+```
+
+## Use it
+
+```bash
+python3 scripts/ic_engine.py --inbox        # process every file in deals/inbox/
+python3 scripts/ic_engine.py deal.xlsx      # score one file
+python3 scripts/ic_engine.py --selftest     # build & score a GO deal and a veto deal
+```
+
+Or, inside a Claude Code session opened in this folder, say **"run IC on the new deal"** —
+the `ic-analyst` subagent (`.claude/agents/ic-analyst.md`) reads the file, scores it, writes
+the report, moves the input to `deals/processed/`, and briefs the verdict.
+
+## What you get
+
+Per deal, a formatted workbook with five sheets: **Verdict · Scorecard · Deal Metrics ·
+Stress Test · Sensitivity**. A workbook with one column per deal also gets a **Ranking** sheet.
+
+The full rubric, veto logic, stress test, and IRR handling are documented in
+[`CLAUDE.md`](CLAUDE.md) and embedded in the subagent. The engine never fabricates a metric —
+missing critical-gate inputs are automatic fails and are flagged in the report.
+
+*Analysis to support the committee — not investment advice.*

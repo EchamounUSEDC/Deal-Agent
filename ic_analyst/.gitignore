@@ -1,0 +1,7 @@
+# Keep the folders, ignore the deal files & generated reports (confidential)
+deals/inbox/*
+deals/processed/*
+deals/reports/*
+!deals/*/.gitkeep
+__pycache__/
+*.pyc
