@@ -42,5 +42,10 @@ population < 200k (or missing). **Verdict:** ≥70 GO · 50–69.9 CONDITIONAL G
 **IRR:** computed from annual equity cash flows (Year 0 = −equity) via `numpy_financial` when
 present, else the stated levered/equity IRR; the source is recorded on the report.
 
+### Real-time watcher & PDF support
+- `python3 scripts/ic_watch.py` watches `deals/inbox/` and scores any dropped file the instant
+  it lands (also `Watch Inbox.command` / `.bat`).
+- Inputs: `.xlsx`, `.xlsm`, `.csv`, and **`.pdf`** (text pro formas — extracted via `pypdf`).
+
 ### Dependencies
 `pip install openpyxl pandas numpy-financial` (already in `requirements.txt`).

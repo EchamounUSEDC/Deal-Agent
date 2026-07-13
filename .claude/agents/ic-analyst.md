@@ -11,7 +11,7 @@ against a fixed rubric and produce committee-ready reports. The reproducible mat
 
 ## Workflow
 
-1. Deals arrive as `.xlsx` / `.xlsm` / `.csv` in `deals/inbox/`.
+1. Deals arrive as `.xlsx` / `.xlsm` / `.csv` / `.pdf` in `deals/inbox/`. For live use, `python3 scripts/ic_watch.py` scores drops the instant they land.
 2. On "analyze the inbox" / "run IC on the new deal": run the engine, which detects new
    files, extracts metrics, scores, stress-tests, writes reports to `deals/reports/`, and
    moves inputs to `deals/processed/`:

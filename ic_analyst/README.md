@@ -10,11 +10,21 @@ writes a committee-ready report to `deals/reports/`.
 pip install -r requirements.txt
 ```
 
-## Use it
+## Real-time mode — drop a file in, get an instant verdict
 
 ```bash
-python3 scripts/ic_engine.py --inbox        # process every file in deals/inbox/
-python3 scripts/ic_engine.py deal.xlsx      # score one file
+python3 scripts/ic_watch.py     # watches deals/inbox/ and scores drops the instant they land
+```
+Leave it running (or double-click **`Watch Inbox.command`** on macOS / **`Watch Inbox.bat`** on
+Windows). Drop a deal — `.xlsx`, `.xlsm`, `.csv`, or **`.pdf`** — into `deals/inbox/` and the
+verdict prints in the terminal in real time, the report is written to `deals/reports/`, and the
+input moves to `deals/processed/`.
+
+## One-shot / batch
+
+```bash
+python3 scripts/ic_engine.py --inbox        # process everything in deals/inbox/ once
+python3 scripts/ic_engine.py deal.pdf       # score one file (xlsx/xlsm/csv/pdf)
 python3 scripts/ic_engine.py --selftest     # build & score a GO deal and a veto deal
 ```
 

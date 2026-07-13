@@ -86,6 +86,26 @@ def _norm_rate(field, val):
 # ============================================================================
 # Loading + extraction
 # ============================================================================
+def _pdf_rows(text):
+    """Turn a page of extracted PDF text into label/value rows the scanner can read."""
+    import re
+    rows = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if ":" in line:
+            lab, val = line.split(":", 1)
+            rows.append([lab.strip(), val.strip()])
+            continue
+        m = re.search(r"-?\$?[\d,]+\.?\d*\s*%?", line)
+        if m and m.start() > 0:
+            rows.append([line[:m.start()].strip(), line[m.start():].strip()])
+        else:
+            rows.append([line])
+    return rows
+
+
 def _load_sheets(path):
     """Return {sheet: rows} where rows is a list of cell-value lists."""
     ext = os.path.splitext(path)[1].lower()
@@ -93,6 +113,13 @@ def _load_sheets(path):
         import csv
         with open(path, newline="", encoding="utf-8-sig", errors="replace") as f:
             return {"csv": [list(r) for r in csv.reader(f)]}
+    if ext == ".pdf":
+        import pypdf
+        reader = pypdf.PdfReader(path)
+        rows = []
+        for page in reader.pages:
+            rows.extend(_pdf_rows(page.extract_text() or ""))
+        return {"pdf": rows}
     import openpyxl
     wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
     out = {}
@@ -687,7 +714,7 @@ def _write_ranking(results, reports_dir, source):
 
 def analyze_inbox():
     os.makedirs(INBOX, exist_ok=True); os.makedirs(PROCESSED, exist_ok=True); os.makedirs(REPORTS, exist_ok=True)
-    files = [f for f in os.listdir(INBOX) if f.lower().endswith((".xlsx", ".xlsm", ".csv"))]
+    files = [f for f in os.listdir(INBOX) if f.lower().endswith((".xlsx", ".xlsm", ".csv", ".pdf"))]
     if not files:
         print("No new deal files in deals/inbox/."); return []
     allres = []
