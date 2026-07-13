@@ -17,7 +17,6 @@ import argparse
 import datetime as _dt
 import os
 import shutil
-import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INBOX = os.path.join(ROOT, "deals", "inbox")
@@ -201,7 +200,7 @@ def _extract_matrix(rows, sheet, label_col, deal_cols):
                 if n is not None:
                     metrics[field] = n
                     prov[field] = f"{sheet}!{_colletter(ci+1)}{ri+1}"
-        results.append((name, metrics, prov, blob))
+        results.append((name, metrics, prov, blob, ci))
     return results
 
 
@@ -280,9 +279,9 @@ def extract_deals(path):
             break
     if matrix:
         sheet, label_col, deal_cols = matrix
-        for name, metrics, prov, blob in _extract_matrix(sheets[sheet], sheet, label_col, deal_cols):
-            cfs = _find_cashflows(sheets, deal_col=None)  # matrix CF handled per-column below
-            out.append(_finalize(name, metrics, prov, blob, sheets, matrix_col=None))
+        for name, metrics, prov, blob, ci in _extract_matrix(sheets[sheet], sheet, label_col, deal_cols):
+            # match each deal to ITS OWN cash-flow column (same column index in the CF sheet)
+            out.append(_finalize(name, metrics, prov, blob, sheets, matrix_col=ci))
     else:
         metrics, prov, blob = _extract_scan(sheets)
         out.append(_finalize(base, metrics, prov, blob, sheets, matrix_col=None))
@@ -512,7 +511,6 @@ def sensitivity(m):
 # Report writer
 # ============================================================================
 def _analyst_narrative(deal, sc, st):
-    m = deal["metrics"]
     strong = [g["label"] for g in sc["gates"] if g["points"] == g["max"]]
     weak = [g["label"] for g in sc["gates"] if g["points"] < g["max"] * 0.5]
     v = sc["verdict"]
@@ -540,8 +538,8 @@ def write_report(deal, out_path):
     NAVY = "1F3A5F"; GREEN = "C6EFCE"; AMBER = "FFEB9C"; RED = "FFC7CE"; GREY = "F2F2F2"
     H = Font(bold=True, color="FFFFFF", size=11); TITLE = Font(bold=True, color="FFFFFF", size=16)
     B = Font(bold=True); thin = Side(style="thin", color="BFBFBF")
-    BORDER = Border(thin, thin, thin, thin); HEAD = PatternFill("solid", fgColor=NAVY)
-    GREYF = PatternFill("solid", fgColor=GREY); C = Alignment(horizontal="center", vertical="center")
+    BORDER = Border(thin, thin, thin, thin)
+    C = Alignment(horizontal="center", vertical="center")
     L = Alignment(horizontal="left", vertical="center", wrap_text=True)
     vfill = {"GO": GREEN, "CONDITIONAL GO": AMBER, "NO-GO": RED}[sc["verdict"]]
     PCT = "0.0%"; MONEY = "$#,##0"
@@ -692,9 +690,9 @@ def analyze_file(path, reports_dir=REPORTS):
 
 def _write_ranking(results, reports_dir, source):
     import openpyxl
-    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.styles import Font, PatternFill, Alignment
     wb = openpyxl.Workbook(); ws = wb.active; ws.title = "Ranking"
-    NAVY = "1F3A5F"; thin = Side(style="thin", color="BFBFBF")
+    NAVY = "1F3A5F"
     H = Font(bold=True, color="FFFFFF"); HEAD = PatternFill("solid", fgColor=NAVY)
     for j, h in enumerate(["Rank", "Deal", "Verdict", "Score", "Stress"]):
         c = ws.cell(1, j + 1, h); c.font = H; c.fill = HEAD
