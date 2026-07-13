@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-400-normal.woff2) format('woff2');font-weight:400}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-500-normal.woff2) format('woff2');font-weight:500}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-600-normal.woff2) format('woff2');font-weight:600}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-700-normal.woff2) format('woff2');font-weight:700}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-800-normal.woff2) format('woff2');font-weight:800}
+@font-face{font-family:Mono;src:url(../assets/fonts/ibm-plex-mono-latin-400-normal.woff2) format('woff2');font-weight:400}
+@font-face{font-family:Mono;src:url(../assets/fonts/ibm-plex-mono-latin-500-normal.woff2) format('woff2');font-weight:500}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#060D18;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;inset:0;background:radial-gradient(1300px 850px at 40% 40%,#0C1A2E 0%,#081120 55%,#050B14 100%)}
+.grid{position:absolute;inset:0;opacity:.45;background-image:linear-gradient(rgba(140,170,220,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(140,170,220,.04) 1px,transparent 1px);background-size:120px 120px}
+#vig{position:absolute;inset:0;background:radial-gradient(1400px 900px at 50% 50%,transparent 58%,rgba(0,0,0,.45) 100%)}
+.kick{position:absolute;top:64px;left:96px;display:flex;align-items:center;gap:14px}
+.kick .tick{width:34px;height:2px;background:#C9A64B}
+.kick span{font-family:Mono;font-size:17px;letter-spacing:.32em;color:#8CA0B8}
+.brand{position:absolute;top:62px;right:96px;text-align:right}
+.brand div:first-child{font-size:17px;font-weight:700;letter-spacing:.18em;color:#DCE6F2}
+.brand div:last-child{font-family:Mono;font-size:13px;letter-spacing:.24em;color:#5F7188;margin-top:5px}
+#h2{position:absolute;top:142px;left:96px;font-size:54px;font-weight:800;letter-spacing:-.01em;color:#EDF3FB;opacity:0}
+#cap{position:absolute;top:228px;left:96px;font-size:25px;color:#93A6BE;opacity:0}
+#chartWrap{position:absolute;left:96px;top:320px;width:1120px;height:600px;opacity:0}
+canvas#chart{position:absolute;inset:0}
+#foot{position:absolute;left:100px;top:942px;font-family:Mono;font-size:14px;letter-spacing:.08em;color:#5F7188;opacity:0}
+.cards{position:absolute;right:96px;top:320px;width:520px}
+.card{display:flex;align-items:center;gap:22px;background:rgba(13,26,45,.78);border:1px solid rgba(140,170,220,.16);border-left:3px solid #C9A64B;border-radius:10px;padding:24px 26px;margin-bottom:22px;opacity:0}
+.card .ico{width:56px;height:56px;flex:none;border:1px solid rgba(201,166,75,.5);border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(201,166,75,.07)}
+.card .ico svg{width:28px;height:28px;stroke:#C9A64B;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.card h3{font-size:26px;font-weight:700;color:#E9F0F9}
+.card p{font-size:17.5px;color:#8CA0B8;margin-top:5px;line-height:1.4}
+#bottomlab{position:absolute;left:96px;bottom:88px;font-family:Mono;font-size:14px;letter-spacing:.3em;color:#5F7188}
+#bottomline{position:absolute;left:96px;right:96px;bottom:70px;height:2px;background:rgba(160,190,230,.12)}
+#bottomprog{position:absolute;left:0;top:0;height:2px;width:0;background:#C9A64B}
+</style>
+</head>
+<body>
+<div id="stage">
+ <div class="grid"></div>
+ <div class="kick"><div class="tick"></div><span>POTENTIAL TAX BENEFITS</span></div>
+ <div class="brand"><div>U.S. ENERGY DEVELOPMENT CORPORATION</div><div>OPPORTUNITY ZONES</div></div>
+ <div id="h2">Valuation, Basis &amp; Long-Term Upside</div>
+ <div id="cap">An illustrative view of the Opportunity Zone tax framework</div>
+ <div id="chartWrap"><canvas id="chart" width="1120" height="600"></canvas></div>
+ <div id="foot">ILLUSTRATIVE ONLY — NOT A PROJECTION OF PERFORMANCE</div>
+ <div class="cards">
+  <div class="card" id="k1"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9.2 12l2 2 3.6-4"/></svg></div>
+   <div><h3>Independent Valuation</h3><p>Year-end review by an independent third party</p></div></div>
+  <div class="card" id="k2"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h9"/><path d="M17.5 15.5v5M15 18h5"/></svg></div>
+   <div><h3>Potential Basis Reset</h3><p>Early-stage valuation may reset an investor&rsquo;s basis</p></div></div>
+  <div class="card" id="k3"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M7 15l3.5-4 3 2.5L18 7.5M15 7.5h3v3"/></svg></div>
+   <div><h3>Long-Term Appreciation</h3><p>Growth potential on the fund investment itself</p></div></div>
+  <div class="card" id="k4"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 2.2"/></svg></div>
+   <div><h3>10-Year Holding Period</h3><p>Potential exclusion of federal capital gains tax</p></div></div>
+ </div>
+ <div id="bottomlab">03&nbsp;/&nbsp;POTENTIAL TAX BENEFITS</div>
+ <div id="bottomline"><div id="bottomprog"></div></div>
+ <div id="vig"></div>
+</div>
+<script>
+window.__ready=false;
+const DUR=24.0;
+const clamp01=x=>x<0?0:x>1?1:x;
+const span=(t,a,b)=>clamp01((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3);
+const lerp=(a,b,x)=>a+(b-a)*x;
+const W=1120,H=600,PL=90,PR=30,PT=40,PB=64;
+const cx=document.getElementById('chart').getContext('2d');
+
+// valuation curve: x in years 0..10 -> relative value (1 = purchase price)
+function val(x){
+  // dip to ~0.72 around year 1.3, recover by ~3.2, growth to ~2.35 at year 10
+  const dip = 1 - 0.30*Math.exp(-Math.pow((x-1.35)/0.9,2));
+  const growth = x<2 ? 0 : 1.42*(1-Math.exp(-(x-2)/4.2));
+  return dip + growth*Math.pow(span(x,1.8,10),1.12);
+}
+const X=x=>PL+(W-PL-PR)*(x/10);
+const Y=v=>H-PB-(H-PT-PB)*((v-0.5)/2.1);
+
+function drawChart(t){
+  cx.clearRect(0,0,W,H);
+  const axIn=eo(span(t,.8,1.8));
+  // axes
+  cx.strokeStyle=`rgba(140,170,220,${.35*axIn})`;cx.lineWidth=1.5;
+  cx.beginPath();cx.moveTo(PL,PT);cx.lineTo(PL,H-PB);cx.lineTo(W-PR,H-PB);cx.stroke();
+  // y grid + labels
+  cx.font='500 15px Mono';cx.textAlign='right';
+  [0.5,1.0,1.5,2.0,2.5].forEach(v=>{
+    const y=Y(v);
+    cx.strokeStyle=`rgba(140,170,220,${.10*axIn})`;
+    cx.beginPath();cx.moveTo(PL,y);cx.lineTo(W-PR,y);cx.stroke();
+    cx.fillStyle=`rgba(140,160,184,${.85*axIn})`;
+    cx.fillText((v*100).toFixed(0)+'%',PL-12,y+5);
+  });
+  // x labels
+  cx.textAlign='center';
+  [0,2,4,6,8,10].forEach(x=>{
+    cx.fillStyle=`rgba(140,160,184,${.85*axIn})`;
+    cx.fillText('YR '+x,X(x),H-PB+30);
+  });
+  // purchase price dashed line
+  const ppIn=eo(span(t,1.6,3.2));
+  if(ppIn>0){
+    cx.save();cx.setLineDash([8,7]);
+    cx.strokeStyle=`rgba(201,166,75,${.55*ppIn})`;cx.lineWidth=2;
+    cx.beginPath();cx.moveTo(PL,Y(1));cx.lineTo(PL+(W-PL-PR)*ppIn,Y(1));cx.stroke();cx.restore();
+    cx.font='600 16px Inter';cx.textAlign='left';
+    cx.fillStyle=`rgba(222,200,140,${ppIn})`;
+    cx.fillText('Original Purchase Price',PL+14,Y(1)-12);
+  }
+  // valuation curve progressive draw: phase A dip (5.5-11), phase B growth (13-21.5)
+  const pA=span(t,5.5,11), pB=span(t,13,21.5);
+  const xMax = pA<1 ? lerp(0,3.2,eoInOut(pA)) : lerp(3.2,10,eoInOut(pB));
+  // area fill under curve from basis-reset point (x where val recovers 1.0 ~ 3.05) — appreciation zone
+  if(xMax>3.05 && t>15){
+    const aIn=span(t,15,20);
+    const grad=cx.createLinearGradient(0,Y(2.4),0,Y(0.8));
+    grad.addColorStop(0,`rgba(201,166,75,${.30*aIn})`);grad.addColorStop(1,'rgba(201,166,75,0)');
+    cx.fillStyle=grad;
+    cx.beginPath();cx.moveTo(X(3.05),Y(1));
+    for(let x=3.05;x<=xMax;x+=.05)cx.lineTo(X(x),Y(val(x)));
+    cx.lineTo(X(xMax),Y(1));cx.closePath();cx.fill();
+  }
+  // curve
+  cx.strokeStyle='#E4C670';cx.lineWidth=3.5;cx.lineJoin='round';
+  cx.shadowColor='rgba(228,198,112,.5)';cx.shadowBlur=12;
+  cx.beginPath();
+  for(let x=0;x<=xMax;x+=.04){const yy=Y(val(x));x===0?cx.moveTo(X(0),yy):cx.lineTo(X(x),yy);}
+  cx.stroke();cx.shadowBlur=0;
+  // tip dot
+  if(xMax>0&&xMax<10){
+    cx.fillStyle='#F0D89A';cx.beginPath();cx.arc(X(xMax),Y(val(xMax)),6,0,6.283);cx.fill();
+  }
+  // dip annotation
+  const dipIn=eo(span(t,8.2,9.2))*(1);
+  if(dipIn>0&&xMax>1.3){
+    const dx=X(1.35),dy=Y(val(1.35));
+    cx.strokeStyle=`rgba(150,180,220,${.6*dipIn})`;cx.lineWidth=1.5;
+    cx.beginPath();cx.moveTo(dx+12,dy);cx.lineTo(dx+30,dy);cx.stroke();
+    cx.font='600 17px Inter';cx.textAlign='left';
+    cx.fillStyle=`rgba(174,189,209,${dipIn})`;
+    cx.fillText('Year-End Independent Valuation',dx+40,dy+2);
+    cx.font='500 15px Mono';
+    cx.fillStyle=`rgba(228,198,112,${dipIn})`;
+    cx.fillText('POTENTIAL BASIS RESET',dx+40,dy+28);
+  }
+  // appreciation annotation
+  const apIn=eo(span(t,18.5,19.5));
+  if(apIn>0){
+    cx.font='600 17px Inter';cx.textAlign='right';
+    cx.fillStyle=`rgba(228,198,112,${apIn})`;
+    cx.fillText('Appreciation on the QOF investment',X(9.8),Y(2.28)-16);
+    cx.font='500 14px Mono';
+    cx.fillStyle=`rgba(174,189,209,${apIn})`;
+    cx.fillText('POTENTIAL EXCLUSION FROM FEDERAL CAPITAL GAINS TAX',X(9.8),Y(2.28)+8);
+  }
+}
+function eoInOut(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
+const el=i=>document.getElementById(i);
+const h2=el('h2'),cap=el('cap'),cw=el('chartWrap'),foot=el('foot'),prog=el('bottomprog');
+const cards=[[el('k1'),2.0],[el('k2'),8.0],[el('k3'),15.0],[el('k4'),18.7]];
+
+window.seek=function(t){
+  const hIn=eo(span(t,.3,1.2));h2.style.opacity=hIn;h2.style.transform=`translateY(${lerp(20,0,hIn)}px)`;
+  cap.style.opacity=eo(span(t,.7,1.6))*.95;
+  const cIn=eo(span(t,1.0,2.0));cw.style.opacity=cIn;cw.style.transform=`translateY(${lerp(30,0,cIn)}px)`;
+  foot.style.opacity=eo(span(t,3.5,4.5))*.9;
+  drawChart(t);
+  cards.forEach(([c,t0])=>{
+    const a=eo(span(t,t0,t0+.8));
+    c.style.opacity=a;c.style.transform=`translateX(${lerp(46,0,a)}px)`;
+  });
+  prog.style.width=(span(t,.4,DUR-.4)*100)+'%';
+};
+window.seek(0);
+window.__ready=true;
+</script>
+</body>
+</html>

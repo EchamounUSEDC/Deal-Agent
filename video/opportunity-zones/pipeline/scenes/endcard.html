@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-400-normal.woff2) format('woff2');font-weight:400}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-500-normal.woff2) format('woff2');font-weight:500}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-600-normal.woff2) format('woff2');font-weight:600}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-700-normal.woff2) format('woff2');font-weight:700}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-800-normal.woff2) format('woff2');font-weight:800}
+@font-face{font-family:Mono;src:url(../assets/fonts/ibm-plex-mono-latin-400-normal.woff2) format('woff2');font-weight:400}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#04090F;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;inset:0;background:radial-gradient(1100px 750px at 50% 44%,#0C1A2E 0%,#071120 55%,#04090F 100%)}
+canvas#pts{position:absolute;inset:0}
+#vig{position:absolute;inset:0;background:radial-gradient(1400px 900px at 50% 50%,transparent 55%,rgba(0,0,0,.5) 100%)}
+#mark{position:absolute;left:0;right:0;top:400px;text-align:center;transform:translateY(-50%)}
+#mark .us{font-size:96px;font-weight:800;letter-spacing:.04em;color:#EDF3FB;opacity:0}
+#mark .rule{height:3px;width:0;margin:30px auto;background:linear-gradient(90deg,transparent,#C9A64B 18%,#C9A64B 82%,transparent)}
+#mark .dev{font-size:33px;font-weight:600;letter-spacing:.42em;color:#B9C7DA;opacity:0;text-indent:.42em}
+#sub{position:absolute;left:0;right:0;top:596px;text-align:center;font-family:Mono;font-size:19px;letter-spacing:.3em;color:#C9A64B;opacity:0}
+#stats{position:absolute;left:0;right:0;top:672px;display:flex;justify-content:center;gap:70px;opacity:0}
+#stats div{text-align:center}
+#stats .n{font-size:34px;font-weight:800;color:#E9F0F9;font-variant-numeric:tabular-nums}
+#stats .l{font-family:Mono;font-size:13px;letter-spacing:.22em;color:#6C7F96;margin-top:8px}
+#disc{position:absolute;left:240px;right:240px;bottom:64px;text-align:center;font-size:14.5px;line-height:1.65;color:#5F7188;opacity:0}
+#fade{position:absolute;inset:0;background:#000;opacity:0}
+</style>
+</head>
+<body>
+<div id="stage">
+ <canvas id="pts" width="1920" height="1080"></canvas>
+ <div id="mark">
+  <div class="us">U.S. ENERGY</div>
+  <div class="rule" id="rule"></div>
+  <div class="dev">DEVELOPMENT CORPORATION</div>
+ </div>
+ <div id="sub">OPPORTUNITY ZONE EDUCATION SERIES</div>
+ <div id="stats">
+  <div><div class="n">45+</div><div class="l">YEARS</div></div>
+  <div><div class="n">4,000+</div><div class="l">WELLS</div></div>
+  <div><div class="n">13+</div><div class="l">STATES &amp; CANADA</div></div>
+  <div><div class="n">$4B+</div><div class="l">DEPLOYED</div></div>
+ </div>
+ <div id="disc">For educational purposes only. This material does not constitute an offer to sell, or a solicitation of an offer to buy, any security.
+ Potential tax benefits depend on individual circumstances and current law; investors should consult their own tax and legal advisors.
+ Investments are available to accredited investors only and involve risk, including possible loss of principal.</div>
+ <div id="vig"></div>
+ <div id="fade"></div>
+</div>
+<script>
+window.__ready=false;
+const DUR=7.5;
+const clamp01=x=>x<0?0:x>1?1:x;
+const span=(t,a,b)=>clamp01((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3);
+const lerp=(a,b,x)=>a+(b-a)*x;
+const P=[];
+for(let i=0;i<40;i++){const s=Math.sin(i*127.1)*43758.5453,r=s-Math.floor(s);
+ const s2=Math.sin(i*311.7)*12543.21,r2=s2-Math.floor(s2);
+ P.push({x:r*1920,y:r2*1080,sp:6+r*10,ph:r2*6.28,sz:.7+r*1.6});}
+const pts=document.getElementById('pts').getContext('2d');
+const el=i=>document.getElementById(i);
+const us=document.querySelector('.us'),dev=document.querySelector('.dev'),rule=el('rule'),
+ sub=el('sub'),stats=el('stats'),disc=el('disc'),fade=el('fade'),mark=el('mark');
+
+window.seek=function(t){
+  pts.clearRect(0,0,1920,1080);
+  pts.fillStyle='rgba(150,180,225,0.12)';
+  P.forEach(p=>{const y=(p.y-t*p.sp)%1080,yy=y<0?y+1080:y;
+    pts.beginPath();pts.arc(p.x+Math.sin(t*.3+p.ph)*18,yy,p.sz,0,6.283);pts.fill();});
+  const sc=lerp(1,1.035,t/DUR);
+  mark.style.transform=`translateY(-50%) scale(${sc})`;
+  const uIn=eo(span(t,.3,1.4));us.style.opacity=uIn;us.style.letterSpacing=lerp(.12,.04,uIn)+'em';
+  rule.style.width=(eo(span(t,.8,2.0))*640)+'px';
+  const dIn=eo(span(t,1.1,2.2));dev.style.opacity=dIn;
+  sub.style.opacity=eo(span(t,1.8,2.8));
+  const stIn=eo(span(t,2.3,3.3));stats.style.opacity=stIn;stats.style.transform=`translateY(${lerp(20,0,stIn)}px)`;
+  disc.style.opacity=eo(span(t,2.9,3.9))*.92;
+  fade.style.opacity=span(t,6.6,7.45);
+};
+window.seek(0);
+window.__ready=true;
+</script>
+</body>
+</html>

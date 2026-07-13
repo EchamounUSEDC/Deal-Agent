@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-400-normal.woff2) format('woff2');font-weight:400}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-500-normal.woff2) format('woff2');font-weight:500}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-600-normal.woff2) format('woff2');font-weight:600}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-700-normal.woff2) format('woff2');font-weight:700}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-800-normal.woff2) format('woff2');font-weight:800}
+@font-face{font-family:Mono;src:url(../assets/fonts/ibm-plex-mono-latin-400-normal.woff2) format('woff2');font-weight:400}
+@font-face{font-family:Mono;src:url(../assets/fonts/ibm-plex-mono-latin-500-normal.woff2) format('woff2');font-weight:500}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased}
+#scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,9,16,.42) 0%,transparent 26%,transparent 55%,rgba(3,7,13,.78) 100%);opacity:0}
+.kick{position:absolute;top:64px;left:96px;display:flex;align-items:center;gap:14px;opacity:0}
+.kick .tick{width:34px;height:2px;background:#C9A64B}
+.kick span{font-family:Mono;font-size:17px;letter-spacing:.32em;color:#C7D4E4;text-shadow:0 1px 8px rgba(0,0,0,.6)}
+#lt{position:absolute;left:96px;bottom:120px}
+#lt .bar{width:5px;background:#C9A64B;position:absolute;left:0;top:6px;bottom:6px;transform-origin:bottom;border-radius:2px}
+#lt .tx{padding-left:34px}
+#lt h1{font-size:56px;font-weight:800;letter-spacing:.01em;color:#F2F6FB;text-shadow:0 2px 18px rgba(0,0,0,.55);opacity:0}
+#lt h2{font-size:26px;font-weight:500;color:#C2CFDF;margin-top:12px;letter-spacing:.06em;text-shadow:0 1px 12px rgba(0,0,0,.6);opacity:0}
+#lt h2 b{color:#E4C670;font-weight:600}
+#chip{position:absolute;top:150px;right:96px;text-align:right;opacity:0}
+#chip .n{font-size:84px;font-weight:800;color:#F2F6FB;text-shadow:0 2px 20px rgba(0,0,0,.6);font-variant-numeric:tabular-nums;line-height:1}
+#chip .l{font-family:Mono;font-size:16px;letter-spacing:.3em;color:#D8C289;margin-top:10px;text-shadow:0 1px 10px rgba(0,0,0,.7)}
+#chip .rl{height:2px;width:100%;background:linear-gradient(90deg,transparent,#C9A64B);margin-top:14px}
+</style>
+</head>
+<body>
+<div id="scrim"></div>
+<div class="kick" id="kick"><div class="tick"></div><span>ABOUT THE FIRM</span></div>
+<div id="lt">
+ <div class="bar" id="bar"></div>
+ <div class="tx">
+  <h1 id="t1">U.S. Energy Development Corporation</h1>
+  <h2 id="t2"><b>Fort Worth, Texas</b> &nbsp;·&nbsp; Headquarters &nbsp;·&nbsp; Est. 1980</h2>
+ </div>
+</div>
+<div id="chip">
+ <div class="n" id="years">45+</div>
+ <div class="l">YEARS OF EXPERIENCE</div>
+ <div class="rl"></div>
+</div>
+<script>
+window.__ready=false;
+const clamp01=x=>x<0?0:x>1?1:x;
+const span=(t,a,b)=>clamp01((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3);
+const lerp=(a,b,x)=>a+(b-a)*x;
+const el=i=>document.getElementById(i);
+const scrim=el('scrim'),kick=el('kick'),bar=el('bar'),t1=el('t1'),t2=el('t2'),chip=el('chip'),years=el('years');
+window.seek=function(t){
+  scrim.style.opacity=eo(span(t,.1,.9));
+  const kIn=eo(span(t,.4,1.2));kick.style.opacity=kIn;kick.style.transform=`translateY(${lerp(12,0,kIn)}px)`;
+  bar.style.transform=`scaleY(${eo(span(t,.8,1.6))})`;
+  const a1=eo(span(t,1.0,1.9));t1.style.opacity=a1;t1.style.transform=`translateY(${lerp(26,0,a1)}px)`;
+  const a2=eo(span(t,1.35,2.25));t2.style.opacity=a2;t2.style.transform=`translateY(${lerp(22,0,a2)}px)`;
+  const c=eo(span(t,4.3,5.2));chip.style.opacity=c;chip.style.transform=`translateY(${lerp(-18,0,c)}px)`;
+  const n=Math.round(lerp(0,45,eo(span(t,4.3,5.6))));
+  years.textContent=n+'+';
+};
+window.seek(0);
+window.__ready=true;
+</script>
+</body>
+</html>

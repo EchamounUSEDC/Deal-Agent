@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-400-normal.woff2) format('woff2');font-weight:400}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-500-normal.woff2) format('woff2');font-weight:500}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-600-normal.woff2) format('woff2');font-weight:600}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-700-normal.woff2) format('woff2');font-weight:700}
+@font-face{font-family:Inter;src:url(../assets/fonts/inter-latin-800-normal.woff2) format('woff2');font-weight:800}
+@font-face{font-family:Mono;src:url(../assets/fonts/ibm-plex-mono-latin-400-normal.woff2) format('woff2');font-weight:400}
+@font-face{font-family:Mono;src:url(../assets/fonts/ibm-plex-mono-latin-500-normal.woff2) format('woff2');font-weight:500}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#060D18;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;inset:0;background:radial-gradient(1300px 850px at 50% 38%,#0C1A2E 0%,#081120 55%,#050B14 100%)}
+.grid{position:absolute;inset:0;opacity:.45;background-image:linear-gradient(rgba(140,170,220,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(140,170,220,.04) 1px,transparent 1px);background-size:120px 120px}
+#vig{position:absolute;inset:0;background:radial-gradient(1400px 900px at 50% 50%,transparent 58%,rgba(0,0,0,.45) 100%)}
+.kick{position:absolute;top:64px;left:96px;display:flex;align-items:center;gap:14px}
+.kick .tick{width:34px;height:2px;background:#C9A64B}
+.kick span{font-family:Mono;font-size:17px;letter-spacing:.32em;color:#8CA0B8}
+.brand{position:absolute;top:62px;right:96px;text-align:right}
+.brand div:first-child{font-size:17px;font-weight:700;letter-spacing:.18em;color:#DCE6F2}
+.brand div:last-child{font-family:Mono;font-size:13px;letter-spacing:.24em;color:#5F7188;margin-top:5px}
+#h2{position:absolute;top:148px;left:0;right:0;text-align:center;font-size:58px;font-weight:800;letter-spacing:-.01em;color:#EDF3FB;opacity:0}
+#cap{position:absolute;top:242px;left:0;right:0;text-align:center;font-size:26px;color:#93A6BE;font-weight:400;opacity:0}
+#tl{position:absolute;left:0;top:0;width:1920px;height:1080px}
+.node{position:absolute;width:230px;margin-left:-115px;text-align:center;opacity:0}
+.node .ico{width:78px;height:78px;margin:0 auto;border:1.5px solid rgba(140,170,220,.30);border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(13,27,48,.85)}
+.node .ico svg{width:38px;height:38px;stroke:#9FB4CE;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.node.on .ico{border-color:#C9A64B;box-shadow:0 0 34px rgba(201,166,75,.28);background:rgba(35,32,18,.9)}
+.node.on .ico svg{stroke:#E4C670}
+.node .lab{margin-top:16px;font-size:22px;font-weight:700;color:#D7E1EE;line-height:1.25}
+.node.on .lab{color:#F0E3BC}
+.node .sub{margin-top:6px;font-family:Mono;font-size:14.5px;letter-spacing:.06em;color:#6C7F96;line-height:1.4}
+.node .pin{width:13px;height:13px;border-radius:50%;background:#54687F;border:2.5px solid #0A1626;margin:18px auto 0}
+.node.on .pin{background:#C9A64B;box-shadow:0 0 18px rgba(201,166,75,.75)}
+#phase{position:absolute;left:0;right:0;top:868px;text-align:center;font-size:27px;color:#AEBDD1;font-weight:500;opacity:0}
+#phase b{color:#E8C86A;font-weight:700}
+#bottomlab{position:absolute;left:96px;bottom:88px;font-family:Mono;font-size:14px;letter-spacing:.3em;color:#5F7188}
+#bottomline{position:absolute;left:96px;right:96px;bottom:70px;height:2px;background:rgba(160,190,230,.12)}
+#bottomprog{position:absolute;left:0;top:0;height:2px;width:0;background:#C9A64B}
+svg#lines{position:absolute;inset:0}
+</style>
+</head>
+<body>
+<div id="stage">
+ <div class="grid"></div>
+ <div class="kick"><div class="tick"></div><span>THE INVESTMENT TIMELINE</span></div>
+ <div class="brand"><div>U.S. ENERGY DEVELOPMENT CORPORATION</div><div>OPPORTUNITY ZONES</div></div>
+ <div id="h2">From Realized Gain to Long-Term Hold</div>
+ <div id="cap">How capital moves through a Qualified Opportunity Fund</div>
+ <svg id="lines" width="1920" height="1080">
+   <line id="base" x1="150" y1="620" x2="1770" y2="620" stroke="rgba(140,170,220,.22)" stroke-width="2"/>
+   <line id="progline" x1="150" y1="620" x2="150" y2="620" stroke="#C9A64B" stroke-width="3.5" stroke-linecap="round"/>
+   <circle id="progdot" cx="150" cy="620" r="7" fill="#E8C86A" opacity="0"/>
+ </svg>
+ <div id="tl"></div>
+ <div id="phase"></div>
+ <div id="bottomlab">02&nbsp;/&nbsp;THE OPPORTUNITY ZONE TIMELINE</div>
+ <div id="bottomline"><div id="bottomprog"></div></div>
+ <div id="vig"></div>
+</div>
+<script>
+window.__ready = false;
+const DUR = 29.0;
+const clamp01 = x => x<0?0:x>1?1:x;
+const span=(t,a,b)=>clamp01((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3);
+const lerp=(a,b,x)=>a+(b-a)*x;
+
+const ICONS = {
+ gain:'<path d="M12 3v12M12 3l-4 4M12 3l4 4"/><path d="M4 19c2.5 1.5 5.5 2 8 2s5.5-.5 8-2"/>',
+ clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 2.2"/>',
+ fund:'<path d="M4 20h16M6 20V10M10 20V10M14 20V10M18 20V10M3.5 10L12 4l8.5 6z"/>',
+ rig:'<path d="M8 21l3.5-14h1L16 21M6.5 21h11M9.5 13h5M12.5 7V4.5M10 4.5h5"/>',
+ cal:'<rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10.5h16M8.5 4v3.5M15.5 4v3.5M14.5 15.5l-3 3-1.8-1.8"/>',
+ hold:'<path d="M7 4h10M7 20h10M8.5 4c0 5 7 5.5 7 8s-7 3-7 8M15.5 4c0 5-7 5.5-7 8s7 3 7 8"/>',
+ chart:'<path d="M4 19V5M4 19h16"/><path d="M6.5 15.5l4-4.5 3 2.5 4.5-6M14 7h4v4"/>'
+};
+const NODES=[
+ {t:1.0,  x:150,  ico:'gain',  lab:'Realize a<br>Capital Gain', sub:'ELIGIBLE GAIN'},
+ {t:3.2,  x:420,  ico:'clock', lab:'180-Day<br>Window',        sub:'REINVESTMENT PERIOD'},
+ {t:5.4,  x:690,  ico:'fund',  lab:'Invest in a<br>QOF',       sub:'QUALIFIED OPPORTUNITY FUND'},
+ {t:8.4,  x:960,  ico:'rig',   lab:'Capital<br>Deployment',    sub:'QUALIFIED OZ PROPERTY'},
+ {t:13.2, x:1230, ico:'cal',   lab:'Recognition<br>Date',      sub:'DEC 31, 2026 OR SALE'},
+ {t:20.4, x:1500, ico:'hold',  lab:'10+ Year<br>Hold',         sub:'LONG-TERM HORIZON'},
+ {t:24.0, x:1770, ico:'chart', lab:'Potential Tax-Free<br>Appreciation', sub:'ON QOF INVESTMENT'}
+];
+const tl=document.getElementById('tl');
+NODES.forEach(n=>{
+  const d=document.createElement('div');
+  d.className='node'; d.style.left=n.x+'px'; d.style.top='517px';
+  d.innerHTML=`<div class="ico"><svg viewBox="0 0 24 24">${ICONS[n.ico]}</svg></div>
+    <div class="pin"></div><div class="lab">${n.lab}</div><div class="sub">${n.sub}</div>`;
+  tl.appendChild(d); n.el=d;
+});
+// reorder: pin should sit on the line; icon above, labels below. adjust layout:
+NODES.forEach(n=>{
+  n.el.innerHTML=`<div class="ico"><svg viewBox="0 0 24 24">${ICONS[n.ico]}</svg></div>
+    <div class="pin"></div><div class="lab">${n.lab}</div><div class="sub">${n.sub}</div>`;
+});
+
+const PHASES=[
+ {a:1.2,b:7.6, html:'Investors generally have <b>180 days</b> after realizing a gain to reinvest in a Qualified Opportunity Fund'},
+ {a:8.0,b:12.6, html:'Capital is deployed into <b>qualified Opportunity Zone property</b>'},
+ {a:13.0,b:20.0, html:'The original gain is <b>deferred</b> until the investment is sold or <b>December 31, 2026</b> — whichever comes first'},
+ {a:20.4,b:28.2, html:'Held <b>10+ years</b>, appreciation may qualify for <b>exclusion from federal capital gains tax</b>'}
+];
+const el=i=>document.getElementById(i);
+const h2=el('h2'),cap=el('cap'),phase=el('phase'),progline=el('progline'),progdot=el('progdot'),prog=el('bottomprog');
+
+window.seek=function(t){
+  const hIn=eo(span(t,.3,1.2)); h2.style.opacity=hIn; h2.style.transform=`translateY(${lerp(20,0,hIn)}px)`;
+  const cIn=eo(span(t,.7,1.6)); cap.style.opacity=cIn*.95;
+  // progress along piecewise node times
+  let x=150;
+  for(let i=0;i<NODES.length-1;i++){
+    const a=NODES[i], b=NODES[i+1];
+    if(t>=b.t) x=b.x;
+    else if(t>=a.t){ x=lerp(a.x,b.x,(t-a.t)/(b.t-a.t)); break; }
+  }
+  if(t<NODES[0].t) x=150;
+  progline.setAttribute('x2',x);
+  progdot.setAttribute('cx',x);
+  progdot.setAttribute('opacity', span(t,.8,1.4)*(t<27.5?1:1-span(t,27.5,28.6)));
+  // nodes
+  NODES.forEach((n,i)=>{
+    const a=eo(span(t,n.t-.35,n.t+.45));
+    n.el.style.opacity=a;
+    n.el.style.transform=`translateY(${lerp(26,0,a)}px)`;
+    const active = t>=n.t && (i===NODES.length-1 || t<NODES[i+1].t+ -0.0001 || true);
+    // "on" = reached; latest reached gets stronger treatment via pulse
+    if(t>=n.t) n.el.classList.add('on'); else n.el.classList.remove('on');
+    const isCurrent = t>=n.t && (i===NODES.length-1 || t<NODES[i+1].t);
+    const p = isCurrent ? 1+0.035*Math.sin((t-n.t)*3.4) : 1;
+    n.el.querySelector('.ico').style.transform=`scale(${p})`;
+  });
+  // phase captions
+  let ph=null;
+  for(const p of PHASES) if(t>=p.a && t<p.b) { ph=p; break; }
+  if(ph){
+    if(phase.__cur!==ph){ phase.innerHTML=ph.html; phase.__cur=ph; }
+    const fin=eo(span(t,ph.a,ph.a+.6)), fout=1-span(t,ph.b-.5,ph.b);
+    phase.style.opacity=Math.min(fin,fout);
+    phase.style.transform=`translateY(${lerp(16,0,fin)}px)`;
+  } else phase.style.opacity=0;
+  prog.style.width=(span(t,.4,DUR-.4)*100)+'%';
+};
+window.seek(0);
+window.__ready = true;
+</script>
+</body>
+</html>
