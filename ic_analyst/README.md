@@ -20,6 +20,20 @@ Windows). Drop a deal — `.xlsx`, `.xlsm`, `.csv`, or **`.pdf`** — into `deal
 verdict prints in the terminal in real time, the report is written to `deals/reports/`, and the
 input moves to `deals/processed/`.
 
+## On-demand routine — `/ic` (run it whenever you need it)
+
+Inside a Claude Code session opened in this folder, type:
+
+```
+/ic                     # process everything in deals/inbox/ and brief each verdict
+/ic path/to/deal.pdf    # score one file (xlsx/xlsm/csv/pdf)
+```
+
+The `/ic` slash command (`.claude/commands/ic.md`) is a durable, on-demand routine — no
+scheduling, no setup. It runs the engine, writes the report to `deals/reports/`, moves the
+input to `deals/processed/`, and briefs the committee (verdict, score, driving gates, stress
+result) right in the chat. Use it any time you want an instant Go/No-Go read.
+
 ## One-shot / batch
 
 ```bash

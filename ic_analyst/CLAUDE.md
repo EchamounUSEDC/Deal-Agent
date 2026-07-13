@@ -6,6 +6,12 @@ Drop deal spreadsheets into `deals/inbox/` and ask to **"analyze the inbox"** or
 **"run IC on the new deal."** The `ic-analyst` subagent (`.claude/agents/ic-analyst.md`)
 runs the deterministic engine, writes committee-ready reports, and briefs the verdict.
 
+**On-demand routine — run it whenever you need it:** type **`/ic`** in Claude Code to
+process the whole inbox, or **`/ic path/to/deal.pdf`** to score one file. The slash command
+(`.claude/commands/ic.md`) runs the engine, writes the report, and briefs the verdict — no
+setup, invoke it any time. For hands-free real-time scoring the instant a file lands, leave
+`python3 scripts/ic_watch.py` running instead.
+
 ```bash
 python3 scripts/ic_engine.py --inbox        # process every file in deals/inbox/
 python3 scripts/ic_engine.py deal.xlsx      # score one file
