@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family:'Playfair'; font-weight:600; src:url(data:font/woff2;base64,{{PF600}}) format('woff2'); }
+@font-face { font-family:'Playfair'; font-weight:700; src:url(data:font/woff2;base64,{{PF700}}) format('woff2'); }
+@font-face { font-family:'InterV'; font-weight:400; src:url(data:font/woff2;base64,{{IN400}}) format('woff2'); }
+@font-face { font-family:'InterV'; font-weight:500; src:url(data:font/woff2;base64,{{IN500}}) format('woff2'); }
+@font-face { font-family:'InterV'; font-weight:600; src:url(data:font/woff2;base64,{{IN600}}) format('woff2'); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:1920px; height:1080px; background:#070E19; overflow:hidden; }
+#stage { position:relative; width:1920px; height:1080px; background:#0A1422; }
+.scene { position:absolute; inset:0; opacity:0; }
+.vignette { position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 130% 105% at 50% 42%, rgba(0,0,0,0) 55%, rgba(2,6,12,.55) 100%); }
+.serif { font-family:'Playfair', Georgia, serif; }
+.sans  { font-family:'InterV', Arial, sans-serif; }
+#fadeblack { position:absolute; inset:0; background:#02060C; opacity:0; }
+.kicker { font-family:'InterV'; font-weight:600; letter-spacing:.42em; text-transform:uppercase; color:#E2A648; fill:#E2A648; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ============ SCENE 1 : TITLE / MAP ============ -->
+<div class="scene" id="s1">
+  <svg width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="s1-contours" opacity="0.16"></g>
+    <g id="s1-map" transform="translate(1130,180) scale(1.06)">
+      <path id="s1-tx" d="" fill="rgba(20,36,58,0.55)" stroke="#8FA6C2" stroke-width="2.6" stroke-linejoin="round"/>
+      <g id="s1-pulses"></g>
+      <path id="s1-basin" d="" fill="#E2A648" opacity="0"/>
+      <text id="s1-basinlab" x="0" y="0" class="sans" font-size="21" font-weight="600" letter-spacing="4" fill="#F0BE6A" opacity="0">PERMIAN BASIN</text>
+    </g>
+    <g id="s1-titleblock">
+      <text x="150" y="475" class="kicker" font-size="26" id="s1-kick" opacity="0">West Texas &#8226; Southeastern New Mexico</text>
+      <text x="143" y="590" class="serif" font-weight="700" font-size="118" fill="#F2EAD9" id="s1-t1" opacity="0">The Permian</text>
+      <text x="143" y="710" class="serif" font-weight="700" font-size="118" fill="#F2EAD9" id="s1-t2" opacity="0">Basin</text>
+      <rect id="s1-rule" x="150" y="762" width="0" height="3" fill="#E2A648"/>
+      <text x="150" y="822" class="sans" font-weight="400" font-size="30" fill="#8399B3" id="s1-sub" opacity="0">A century of American energy, one hundred years in the making</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============ SCENE 2 : GEOLOGY ============ -->
+<div class="scene" id="s2">
+  <svg width="1920" height="1080" viewBox="0 0 1920 1080">
+    <rect x="0" y="0" width="1920" height="360" fill="#0C1930"/>
+    <path id="s2-sea" d="" fill="#16304F"/>
+    <path id="s2-wave" d="" fill="none" stroke="#4E7396" stroke-width="3" opacity="0.8"/>
+    <g id="s2-particles"></g>
+    <g id="s2-layers"></g>
+    <g id="s2-caption" opacity="0">
+      <text x="960" y="205" text-anchor="middle" class="kicker" font-size="24">The Permian Period</text>
+      <text x="960" y="290" text-anchor="middle" class="serif" font-weight="700" font-size="72" fill="#F2EAD9">299&#8211;252 million years ago</text>
+    </g>
+    <text id="s2-note" x="960" y="1006" text-anchor="middle" class="sans" font-size="27" fill="#8399B3" opacity="0">An ancient inland sea deposits layer upon layer of organic-rich sediment</text>
+  </svg>
+</div>
+
+<!-- ============ SCENE 3 : SANTA RITA 1923 ============ -->
+<div class="scene" id="s3">
+  <svg width="1920" height="1080" viewBox="0 0 1920 1080">
+    <defs>
+      <linearGradient id="s3-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0A1422"/><stop offset="72%" stop-color="#12233B"/><stop offset="100%" stop-color="#27405C"/>
+      </linearGradient>
+    </defs>
+    <rect width="1920" height="800" fill="url(#s3-sky)"/>
+    <rect y="800" width="1920" height="280" fill="#050B14"/>
+    <g id="s3-gusher"></g>
+    <g id="s3-derrick" transform="translate(1330,800)"></g>
+    <g id="s3-card" opacity="0">
+      <text x="165" y="450" class="kicker" font-size="25">The discovery</text>
+      <text x="158" y="575" class="serif" font-weight="700" font-size="150" fill="#F2EAD9">May 28, 1923</text>
+      <rect x="165" y="622" width="130" height="3" fill="#E2A648"/>
+      <text x="165" y="690" class="sans" font-size="35" font-weight="500" fill="#C9D4E2">Santa Rita No. 1 &#8226; Reagan County, Texas</text>
+      <text x="165" y="748" class="sans" font-size="27" fill="#8399B3">Twenty-one months of drilling &#8212; then a gusher over university land</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============ SCENE 4 : BOOM ============ -->
+<div class="scene" id="s4">
+  <svg width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="s4-map" transform="translate(120,120)">
+      <rect x="0" y="0" width="880" height="760" fill="#0E1B2E" stroke="#24374F" stroke-width="2" rx="6"/>
+      <g id="s4-grid" opacity="0.35"></g>
+      <g id="s4-wells"></g>
+      <g id="s4-cities"></g>
+    </g>
+    <g id="s4-text">
+      <text x="1110" y="330" class="kicker" font-size="25" id="s4-kick" opacity="0">The boom years</text>
+      <text x="1103" y="440" class="serif" font-weight="700" font-size="96" fill="#F2EAD9" id="s4-h1" opacity="0">Boomtowns rise</text>
+      <text x="1103" y="550" class="serif" font-weight="600" font-size="96" fill="#E2A648" id="s4-h2" opacity="0">from the plains</text>
+      <text x="1110" y="640" class="sans" font-size="31" fill="#C9D4E2" id="s4-b1" opacity="0">Midland and Odessa grow into the capital</text>
+      <text x="1110" y="688" class="sans" font-size="31" fill="#C9D4E2" id="s4-b2" opacity="0">of West Texas oil &#8212; and university-land</text>
+      <text x="1110" y="736" class="sans" font-size="31" fill="#C9D4E2" id="s4-b3" opacity="0">royalties build a landmark endowment.</text>
+      <g id="s4-fund" opacity="0">
+        <rect x="1110" y="790" width="620" height="96" rx="8" fill="rgba(226,166,72,0.10)" stroke="#E2A648" stroke-width="1.4"/>
+        <text x="1140" y="830" class="sans" font-weight="600" font-size="24" fill="#F0BE6A" letter-spacing="2">PERMANENT UNIVERSITY FUND</text>
+        <text x="1140" y="864" class="sans" font-size="22" fill="#8399B3">Seeded by Santa Rita royalties, 1923</text>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<!-- ============ SCENE 5 : PEAK AND DECLINE ============ -->
+<div class="scene" id="s5">
+  <svg width="1920" height="1080" viewBox="0 0 1920 1080">
+    <text x="160" y="200" class="kicker" font-size="25" id="s5-kick" opacity="0">Conventional era</text>
+    <text x="153" y="298" class="serif" font-weight="700" font-size="84" fill="#F2EAD9" id="s5-h" opacity="0">Peak &#8212; then the long decline</text>
+    <g id="s5-chart" transform="translate(220,400)">
+      <line x1="0" y1="480" x2="1480" y2="480" stroke="#31465F" stroke-width="2"/>
+      <g id="s5-gridlines"></g>
+      <g id="s5-xlabels" class="sans" font-size="24" fill="#8399B3" text-anchor="middle"></g>
+      <g id="s5-ylabels" class="sans" font-size="22" fill="#607694"></g>
+      <defs>
+        <linearGradient id="s5-fillg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(226,166,72,0.30)"/><stop offset="100%" stop-color="rgba(226,166,72,0.02)"/>
+        </linearGradient>
+        <clipPath id="s5-clip"><rect id="s5-cliprect" x="0" y="-60" width="0" height="560"/></clipPath>
+      </defs>
+      <g clip-path="url(#s5-clip)">
+        <path id="s5-area" d="" fill="url(#s5-fillg)"/>
+        <path id="s5-line" d="" fill="none" stroke="#E2A648" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <g id="s5-peak" opacity="0">
+        <circle id="s5-peakdot" r="10" fill="#F0BE6A" stroke="#0A1422" stroke-width="3"/>
+        <text id="s5-peaklab1" class="sans" font-weight="600" font-size="27" fill="#F0BE6A" text-anchor="middle">2+ million barrels / day</text>
+        <text id="s5-peaklab2" class="sans" font-size="24" fill="#8399B3" text-anchor="middle">1973 peak</text>
+      </g>
+      <text id="s5-declab" class="sans" font-size="26" fill="#8399B3" opacity="0">three decades of decline</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============ SCENE 6 : SHALE REVOLUTION ============ -->
+<div class="scene" id="s6">
+  <svg width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="s6-strata"></g>
+    <g id="s6-lab" class="sans" font-size="25" font-weight="500"></g>
+    <path id="s6-well" d="" fill="none" stroke="#F2EAD9" stroke-width="7" stroke-linecap="round"/>
+    <g id="s6-fracks"></g>
+    <g id="s6-rig" opacity="0"></g>
+    <g id="s6-head" opacity="0">
+      <text x="160" y="180" class="kicker" font-size="25">The turnaround</text>
+      <text x="153" y="280" class="serif" font-weight="700" font-size="84" fill="#F2EAD9">The shale revolution</text>
+      <text x="160" y="345" class="sans" font-size="30" fill="#C9D4E2">Horizontal drilling + hydraulic fracturing unlock stacked pay zones</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============ SCENE 7 : TODAY ============ -->
+<div class="scene" id="s7">
+  <svg width="1920" height="1080" viewBox="0 0 1920 1080">
+    <text x="960" y="205" text-anchor="middle" class="kicker" font-size="25" id="s7-kick" opacity="0">The Permian today</text>
+    <text id="s7-big" x="960" y="475" text-anchor="middle" class="serif" font-weight="700" font-size="290" fill="#F2EAD9" opacity="0">6.5M</text>
+    <text x="960" y="560" text-anchor="middle" class="sans" font-weight="500" font-size="34" letter-spacing="6" fill="#E2A648" id="s7-unit" opacity="0">BARRELS OF CRUDE, EVERY DAY</text>
+    <g id="s7-bars" transform="translate(560,660)"></g>
+    <text x="960" y="1010" text-anchor="middle" class="sans" font-size="23" fill="#607694" id="s7-src" opacity="0">Crude oil production by region, U.S. EIA, 2025</text>
+  </svg>
+</div>
+
+<!-- ============ SCENE 8 : OUTRO ============ -->
+<div class="scene" id="s8">
+  <svg width="1920" height="1080" viewBox="0 0 1920 1080">
+    <defs>
+      <linearGradient id="s8-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#070E19"/><stop offset="55%" stop-color="#122036"/>
+        <stop offset="88%" stop-color="#5A4630"/><stop offset="100%" stop-color="#8A5F33"/>
+      </linearGradient>
+    </defs>
+    <rect width="1920" height="880" fill="url(#s8-sky)"/>
+    <circle cx="960" cy="868" r="150" fill="#E8B15E" opacity="0.85"/>
+    <circle cx="960" cy="868" r="230" fill="#E8B15E" opacity="0.16"/>
+    <rect y="868" width="1920" height="212" fill="#04080F"/>
+    <g id="s8-stars"></g>
+    <g id="s8-pj" transform="translate(1280,868)"></g>
+    <g id="s8-text">
+      <text x="160" y="360" class="kicker" font-size="25" id="s8-kick" opacity="0">1923 &#8212; today</text>
+      <text x="153" y="470" class="serif" font-weight="700" font-size="100" fill="#F2EAD9" id="s8-h1" opacity="0">The heartbeat of</text>
+      <text x="153" y="585" class="serif" font-weight="700" font-size="100" fill="#F0BE6A" id="s8-h2" opacity="0">American energy</text>
+      <text x="160" y="668" class="sans" font-size="30" fill="#C9D4E2" id="s8-sub" opacity="0">One hundred years on, the Permian Basin still powers the nation.</text>
+    </g>
+  </svg>
+</div>
+
+<div class="vignette"></div>
+<div id="fadeblack"></div>
+</div>
+
+<script>
+/* ---------- timing ---------- */
+const SCENES = [
+  {id:'s1', start:0.00,  dur:9.09},
+  {id:'s2', start:9.09,  dur:10.07},
+  {id:'s3', start:19.16, dur:11.59},
+  {id:'s4', start:30.75, dur:11.38},
+  {id:'s5', start:42.13, dur:10.93},
+  {id:'s6', start:53.06, dur:12.23},
+  {id:'s7', start:65.29, dur:9.35},
+  {id:'s8', start:74.64, dur:10.11},
+];
+const TOTAL = 84.75;
+const XF = 0.55; /* crossfade */
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const lerp = (a,b,p) => a + (b-a)*p;
+/* progress within [t0, t0+d] of local scene time */
+const seg = (lt, t0, d) => clamp((lt - t0)/d, 0, 1);
+const easeOut  = p => 1 - Math.pow(1-p, 3);
+const easeIn   = p => p*p*p;
+const easeInOut= p => p<0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
+const easeOutBack = p => { const c=1.4; return 1 + (c+1)*Math.pow(p-1,3) + c*Math.pow(p-1,2); };
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent){ const e=document.createElementNS(SVGNS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+
+/* ---------- geo: simplified Texas ---------- */
+/* project lon/lat to local coords */
+const PX = (lon,lat) => [ (lon+107)*46*0.85, (36.8-lat)*46 ];
+const TX_PTS = [
+ [-103.04,36.5],[-100.0,36.5],[-100.0,34.56],[-99.2,34.44],[-98.4,34.12],[-97.6,33.99],[-96.8,33.86],[-95.8,33.87],[-94.9,33.8],[-94.04,33.77],
+ [-94.04,33.0],[-93.85,32.0],[-93.75,31.0],[-93.9,30.3],[-93.85,29.72],
+ [-94.9,29.35],[-95.9,28.9],[-96.6,28.35],[-97.15,27.85],[-97.35,26.9],[-97.15,25.95],
+ [-98.1,26.06],[-99.1,26.4],[-99.45,27.02],[-99.9,27.55],[-100.3,28.28],[-100.95,29.15],[-101.65,29.77],[-102.3,29.88],[-102.85,29.35],[-103.1,29.02],[-103.75,29.25],[-104.4,29.55],[-104.9,30.35],[-105.6,31.0],[-106.5,31.75],[-106.62,31.9],
+ [-103.06,31.9],[-103.06,36.5]
+];
+function pathFrom(pts, close){ let d=''; pts.forEach((p,i)=>{ const [x,y]=PX(p[0],p[1]); d += (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' '; }); return d+(close?'Z':''); }
+function smoothClosed(pts){ /* quadratic through midpoints for a soft blob */
+  const P = pts.map(p=>PX(p[0],p[1])); const n=P.length;
+  const mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  let d='M '+mid(P[0],P[1]).map(v=>v.toFixed(1)).join(' ');
+  for(let i=1;i<=n;i++){ const c=P[i%n], m=mid(P[i%n],P[(i+1)%n]); d+=' Q '+c[0].toFixed(1)+' '+c[1].toFixed(1)+' '+m[0].toFixed(1)+' '+m[1].toFixed(1); }
+  return d+' Z';
+}
+/* Permian basin blob (west TX + SE NM) */
+const BASIN_PTS = [[-104.1,32.9],[-103.4,33.4],[-102.5,33.55],[-101.6,33.2],[-101.15,32.4],[-101.2,31.55],[-101.9,30.75],[-102.9,30.45],[-103.8,30.9],[-104.35,31.8]];
+
+/* ---------- SCENE 1 build ---------- */
+(function(){
+  $('s1-tx').setAttribute('d', pathFrom(TX_PTS,true));
+  $('s1-basin').setAttribute('d', smoothClosed(BASIN_PTS));
+  const [bx,by] = PX(-102.7,32.05);
+  const lab = $('s1-basinlab');
+  lab.setAttribute('x', bx-108); lab.setAttribute('y', by+118);
+  const pulses = $('s1-pulses');
+  for(let i=0;i<3;i++) el('ellipse',{cx:bx,cy:by,rx:1,ry:1,fill:'none',stroke:'#E2A648','stroke-width':2,opacity:0,id:'s1-pulse'+i},pulses);
+  /* contour background */
+  const g = $('s1-contours'); const rnd = mulberry32(7);
+  for(let i=0;i<14;i++){
+    let cy = 60+i*78, d='M -100 '+cy;
+    for(let x=0;x<=2100;x+=140){ d += ' Q '+(x+70)+' '+(cy+(rnd()*90-45))+' '+(x+140)+' '+cy; }
+    el('path',{d, fill:'none', stroke:'#22354d','stroke-width':1.5},g);
+  }
+})();
+const s1_txLen = $('s1-tx').getTotalLength();
+$('s1-tx').style.strokeDasharray = s1_txLen;
+function upd1(lt){
+  $('s1-contours').setAttribute('transform','translate('+(-lt*7)+',0)');
+  $('s1-tx').style.strokeDashoffset = s1_txLen*(1-easeInOut(seg(lt,0.15,2.1)));
+  $('s1-tx').setAttribute('fill-opacity', seg(lt,1.6,1.0));
+  const bp = easeOut(seg(lt,2.4,1.0));
+  $('s1-basin').setAttribute('opacity', bp*0.92);
+  $('s1-basin').setAttribute('transform','scale(1)');
+  $('s1-basinlab').setAttribute('opacity', seg(lt,3.0,0.8));
+  for(let i=0;i<3;i++){
+    const pp = ((lt-3.0+ i*1.05)/3.15) % 1;
+    const e = $('s1-pulse'+i);
+    if(lt>3.0 && pp>=0){ const r = 14+easeOut(pp)*135; e.setAttribute('rx',r); e.setAttribute('ry',r*0.72); e.setAttribute('opacity',(1-pp)*0.5); }
+    else e.setAttribute('opacity',0);
+  }
+  $('s1-kick').setAttribute('opacity', seg(lt,0.55,0.8));
+  const t1p = easeOut(seg(lt,0.85,0.9));
+  $('s1-t1').setAttribute('opacity', t1p); $('s1-t1').setAttribute('transform','translate(0,'+(1-t1p)*36+')');
+  const t2p = easeOut(seg(lt,1.15,0.9));
+  $('s1-t2').setAttribute('opacity', t2p); $('s1-t2').setAttribute('transform','translate(0,'+(1-t2p)*36+')');
+  $('s1-rule').setAttribute('width', 620*easeInOut(seg(lt,1.7,1.0)));
+  $('s1-sub').setAttribute('opacity', seg(lt,2.1,0.9));
+}
+
+/* ---------- SCENE 2 build ---------- */
+const S2_LAYERS = [
+  {y:360, h:96,  c:'#243B58', from:-1, lab:''},
+  {y:456, h:110, c:'#3A4E60', from: 1, lab:''},
+  {y:566, h:104, c:'#54574F', from:-1, lab:''},
+  {y:670, h:112, c:'#6B5B41', from: 1, lab:''},
+  {y:782, h:100, c:'#54473A', from:-1, lab:''},
+  {y:882, h:198, c:'#3B3229', from: 1, lab:''},
+];
+(function(){
+  const g = $('s2-layers'); const rnd = mulberry32(21);
+  S2_LAYERS.forEach((L,i)=>{
+    const gg = el('g',{id:'s2-L'+i},g);
+    let d='M 0 '+L.y;
+    for(let x=0;x<=1920;x+=160) d+=' Q '+(x+80)+' '+(L.y+(rnd()*26-13))+' '+(x+160)+' '+L.y;
+    d += ' L 1920 '+(L.y+L.h)+' L 0 '+(L.y+L.h)+' Z';
+    el('path',{d, fill:L.c},gg);
+    for(let k=0;k<40;k++) el('circle',{cx:rnd()*1920, cy:L.y+14+rnd()*(L.h-24), r:1.4+rnd()*2.4, fill:'rgba(10,16,26,0.5)'},gg);
+  });
+  const pg = $('s2-particles'); const r2 = mulberry32(5);
+  for(let i=0;i<46;i++){
+    el('circle',{cx:r2()*1920, cy:0, r:2+r2()*3, fill:'#7E96AE', opacity:0.55, 'data-off':r2().toFixed(3), 'data-x':(r2()*1920).toFixed(0)},pg).id='s2-p'+i;
+  }
+})();
+function upd2(lt){
+  /* sea + wave */
+  let dw='M 0 352', ds='M 0 352';
+  for(let x=0;x<=1920;x+=40){ const y=352+Math.sin(x/170+lt*1.5)*10; dw+=' L '+x+' '+y.toFixed(1); ds+=' L '+x+' '+y.toFixed(1); }
+  ds += ' L 1920 240 L 0 240 Z';
+  $('s2-wave').setAttribute('d',dw); $('s2-sea').setAttribute('d',ds);
+  /* layers settle bottom-up */
+  S2_LAYERS.forEach((L,i)=>{
+    const p = easeOut(seg(lt, 0.5 + (5-i)*0.62, 1.15));
+    const gg = $('s2-L'+i);
+    gg.setAttribute('opacity', p);
+    gg.setAttribute('transform','translate('+(1-p)*L.from*260+','+(1-p)*-46+')');
+  });
+  /* falling sediment */
+  for(let i=0;i<46;i++){
+    const e=$('s2-p'+i); const off=parseFloat(e.dataset.off);
+    const pp=((lt*0.16)+off)%1;
+    e.setAttribute('cy', 352+pp*560);
+    e.setAttribute('cx', parseFloat(e.dataset.x)+Math.sin(lt+off*9)*22);
+    e.setAttribute('opacity', 0.5*(1-pp)*seg(lt,0.8,1));
+  }
+  $('s2-caption').setAttribute('opacity', seg(lt,1.1,1.0));
+  $('s2-note').setAttribute('opacity', seg(lt,4.6,1.0));
+}
+
+/* ---------- SCENE 3 build ---------- */
+(function(){
+  const d = $('s3-derrick');
+  /* wooden derrick silhouette ~ 300 tall */
+  const c='#03070D';
+  el('polygon',{points:'-95,0 -58,-310 58,-310 95,0 60,0 34,-292 -34,-292 -60,0', fill:c},d);
+  for(let i=1;i<6;i++){
+    const y=-i*52, w=95-(i*12.5);
+    el('line',{x1:-w,y1:y,x2:w,y2:y,stroke:c,'stroke-width':10},d);
+    el('line',{x1:-w,y1:y,x2:w-24,y2:y+52,stroke:c,'stroke-width':6},d);
+    el('line',{x1:w,y1:y,x2:-w+24,y2:y+52,stroke:c,'stroke-width':6},d);
+  }
+  el('rect',{x:-46,y:-330,width:92,height:22,fill:c},d);
+  /* gusher jet column */
+  el('polygon',{points:'1322,470 1338,470 1348,320 1312,320', fill:'#26405C', opacity:0, id:'s3-jet'},$('s3-gusher'));
+  /* gusher particles */
+  const g=$('s3-gusher'); const rnd=mulberry32(99);
+  for(let i=0;i<170;i++){
+    el('circle',{r:4+rnd()*7, fill: rnd()<0.6?'#22374F':'#31527A', opacity:0,
+      'data-a':(rnd()*2-1).toFixed(3), 'data-v':(0.82+rnd()*0.34).toFixed(3), 'data-o':(rnd()).toFixed(3)},g).id='s3-gp'+i;
+  }
+})();
+function upd3(lt){
+  const start=1.15, X=1330, topY=800-330;
+  const jet=$('s3-jet');
+  jet.setAttribute('opacity', seg(lt,start,0.5)*(0.55+0.1*Math.sin(lt*11)));
+  jet.setAttribute('transform','translate(0,'+(1-easeOut(seg(lt,start,0.6)))*150+')');
+  for(let i=0;i<170;i++){
+    const e=$('s3-gp'+i);
+    if(lt<start){ e.setAttribute('opacity',0); continue; }
+    const o=parseFloat(e.dataset.o), a=parseFloat(e.dataset.a), v=parseFloat(e.dataset.v);
+    const cyc=1.9, pp=((lt-start)*0.72+o*cyc)%cyc/cyc;
+    const up=580*v, grav=880;
+    const tt=pp*1.55;
+    const y=topY - (up*tt - 0.5*grav*tt*tt*0.62);
+    const x=X + a*46*tt*2.4;
+    e.setAttribute('cx',x); e.setAttribute('cy',y);
+    e.setAttribute('opacity', clamp((1-pp)*1.15,0,0.95)*seg(lt,start,0.45));
+  }
+  $('s3-card').setAttribute('opacity', seg(lt,1.9,1.0));
+  const cardY = (1-easeOut(seg(lt,1.9,1.0)))*40;
+  $('s3-card').setAttribute('transform','translate(0,'+cardY+')');
+}
+
+/* ---------- SCENE 4 build ---------- */
+(function(){
+  const grid=$('s4-grid');
+  for(let x=0;x<=880;x+=80) el('line',{x1:x,y1:0,x2:x,y2:760,stroke:'#1C2E45','stroke-width':1},grid);
+  for(let y=0;y<=760;y+=76) el('line',{x1:0,y1:y,x2:880,y2:y,stroke:'#1C2E45','stroke-width':1},grid);
+  const wells=$('s4-wells'); const rnd=mulberry32(41);
+  /* cluster wells around two centers (Midland-ish, Odessa-ish) + scatter */
+  const centers=[[520,392],[382,428],[450,300],[560,520],[300,330],[620,260]];
+  for(let i=0;i<130;i++){
+    const c=centers[Math.floor(rnd()*centers.length)];
+    const ang=rnd()*6.283, rad=Math.pow(rnd(),0.6)*150;
+    const x=clamp(c[0]+Math.cos(ang)*rad, 30,850), y=clamp(c[1]+Math.sin(ang)*rad*0.85, 30,730);
+    el('circle',{cx:x,cy:y,r:0,fill: rnd()<0.75?'#E2A648':'#F0BE6A', 'data-t':(rnd()).toFixed(3), opacity:0.9},wells).id='s4-w'+i;
+  }
+  const cities=$('s4-cities');
+  const CI=[{n:'MIDLAND',x:520,y:392,lx:18,ly:-16,anchor:'start'},{n:'ODESSA',x:382,y:428,lx:-20,ly:44,anchor:'end'}];
+  CI.forEach((c,i)=>{
+    const gg=el('g',{opacity:0, id:'s4-c'+i},cities);
+    el('circle',{cx:c.x,cy:c.y,r:9,fill:'#F2EAD9',stroke:'#0A1422','stroke-width':3},gg);
+    el('text',{x:c.x+c.lx,y:c.y+c.ly,'text-anchor':c.anchor,'font-size':26,fill:'#F2EAD9','font-weight':600,class:'sans','letter-spacing':2},gg).textContent=c.n;
+  });
+})();
+function upd4(lt){
+  for(let i=0;i<130;i++){
+    const e=$('s4-w'+i);
+    const p=easeOutBack(seg(lt, 0.7+parseFloat(e.dataset.t)*6.4, 0.5));
+    e.setAttribute('r', clamp(p,0,1.2)*5.2);
+  }
+  $('s4-c0').setAttribute('opacity', seg(lt,1.35,0.7));
+  $('s4-c1').setAttribute('opacity', seg(lt,1.85,0.7));
+  $('s4-kick').setAttribute('opacity', seg(lt,0.5,0.8));
+  const h1=easeOut(seg(lt,0.8,0.9));
+  $('s4-h1').setAttribute('opacity',h1); $('s4-h1').setAttribute('transform','translate(0,'+(1-h1)*34+')');
+  const h2=easeOut(seg(lt,1.1,0.9));
+  $('s4-h2').setAttribute('opacity',h2); $('s4-h2').setAttribute('transform','translate(0,'+(1-h2)*34+')');
+  $('s4-b1').setAttribute('opacity', seg(lt,1.9,0.8));
+  $('s4-b2').setAttribute('opacity', seg(lt,2.1,0.8));
+  $('s4-b3').setAttribute('opacity', seg(lt,2.3,0.8));
+  $('s4-fund').setAttribute('opacity', seg(lt,5.6,1.0));
+}
+
+/* ---------- SCENE 5 build ---------- */
+const S5_DATA=[[1940,0.32],[1950,0.75],[1955,1.0],[1960,1.2],[1965,1.55],[1970,1.92],[1973,2.08],[1976,1.96],[1980,1.72],[1985,1.52],[1990,1.32],[1995,1.14],[2000,1.0],[2007,0.86]];
+const s5x = yr => (yr-1940)/(2007-1940)*1480;
+const s5y = v  => 480 - v/2.3*440;
+(function(){
+  let d='M '+s5x(1940)+' '+s5y(0.32), da=d;
+  for(let i=1;i<S5_DATA.length;i++){
+    const [xr,v]=S5_DATA[i]; const [xp,vp]=S5_DATA[i-1];
+    const mx=(s5x(xp)+s5x(xr))/2;
+    d += ' C '+mx+' '+s5y(vp)+' '+mx+' '+s5y(v)+' '+s5x(xr)+' '+s5y(v);
+    da += ' C '+mx+' '+s5y(vp)+' '+mx+' '+s5y(v)+' '+s5x(xr)+' '+s5y(v);
+  }
+  $('s5-line').setAttribute('d',d);
+  $('s5-area').setAttribute('d', da+' L '+s5x(2007)+' 480 L '+s5x(1940)+' 480 Z');
+  const xl=$('s5-xlabels');
+  [1940,1950,1960,1973,1985,2000,2007].forEach(yr=>{
+    el('text',{x:s5x(yr),y:522},xl).textContent=yr;
+    el('line',{x1:s5x(yr),y1:480,x2:s5x(yr),y2:488,stroke:'#31465F','stroke-width':2},$('s5-chart'));
+  });
+  const gl=$('s5-gridlines');
+  [0.5,1.0,1.5,2.0].forEach(v=>{
+    el('line',{x1:0,y1:s5y(v),x2:1480,y2:s5y(v),stroke:'#182A40','stroke-width':1.4},gl);
+    el('text',{x:-18,y:s5y(v)+7,'text-anchor':'end',class:'sans','font-size':22,fill:'#607694'},$('s5-ylabels')).textContent=v.toFixed(1)+'M';
+  });
+  const px=s5x(1973), py=s5y(2.08);
+  $('s5-peakdot').setAttribute('cx',px); $('s5-peakdot').setAttribute('cy',py);
+  $('s5-peaklab1').setAttribute('x',px); $('s5-peaklab1').setAttribute('y',py-66);
+  $('s5-peaklab2').setAttribute('x',px); $('s5-peaklab2').setAttribute('y',py-30);
+  $('s5-declab').setAttribute('x',s5x(1991)); $('s5-declab').setAttribute('y',s5y(1.3)-52);
+})();
+function upd5(lt){
+  $('s5-kick').setAttribute('opacity', seg(lt,0.45,0.8));
+  const h=easeOut(seg(lt,0.7,0.9));
+  $('s5-h').setAttribute('opacity',h); $('s5-h').setAttribute('transform','translate(0,'+(1-h)*30+')');
+  $('s5-cliprect').setAttribute('width', 1480*easeInOut(seg(lt,1.3,4.6)));
+  /* peak reveal when line passes 1973: progress fraction of 1973 in x = 0.4925 -> lt ~ 1.3+4.6*0.55 */
+  $('s5-peak').setAttribute('opacity', seg(lt,3.7,0.7));
+  const pk=1+0.35*Math.exp(-Math.max(0,lt-3.7))*Math.sin(Math.max(0,lt-3.7)*9);
+  $('s5-peakdot').setAttribute('transform','translate(0,0) scale(1)');
+  $('s5-peakdot').setAttribute('r',10*pk);
+  $('s5-declab').setAttribute('opacity', seg(lt,6.2,0.9));
+}
+
+/* ---------- SCENE 6 build ---------- */
+const S6_STRATA=[
+  {y:430,h:110,c:'#2E4258',n:''},
+  {y:540,h:104,c:'#4A5361',n:'SPRABERRY'},
+  {y:644,h:102,c:'#5E5443',n:'WOLFCAMP'},
+  {y:746,h:96, c:'#4C4234',n:'BONE SPRING'},
+  {y:842,h:238,c:'#352C22',n:''},
+];
+(function(){
+  const g=$('s6-strata'); const rnd=mulberry32(63);
+  el('rect',{x:0,y:0,width:1920,height:430,fill:'#0A1422'},g);
+  S6_STRATA.forEach((L,i)=>{
+    let d='M 0 '+L.y;
+    for(let x=0;x<=1920;x+=192) d+=' Q '+(x+96)+' '+(L.y+(rnd()*20-10))+' '+(x+192)+' '+L.y;
+    d+=' L 1920 '+(L.y+L.h)+' L 0 '+(L.y+L.h)+' Z';
+    el('path',{d,fill:L.c},g);
+  });
+  el('rect',{x:0,y:426,width:1920,height:5,fill:'#03070D'},g).id='s6-surface';
+  const lab=$('s6-lab');
+  S6_STRATA.forEach((L,i)=>{
+    if(!L.n) return;
+    const t=el('text',{x:1610,y:L.y+L.h/2+9,fill:'#F2EAD9',opacity:0,'letter-spacing':3,id:'s6-n'+i},lab);
+    t.textContent=L.n;
+  });
+  /* rig */
+  const rig=$('s6-rig'); const c='#03070D';
+  el('polygon',{points:'880,426 916,306 948,306 984,426',fill:c},rig);
+  el('rect',{x:840,y:406,width:186,height:20,fill:c},rig);
+  el('rect',{x:916,y:288,width:32,height:18,fill:c},rig);
+  /* frack fissures along horizontal leg */
+  const fg=$('s6-fracks'); const r2=mulberry32(17);
+  for(let i=0;i<11;i++){
+    const x=1050+i*46;
+    [[1,-1],[1,1]].forEach((dir,k)=>{
+      let d='M '+x+' 700', yy=700, xx=x;
+      for(let s2=0;s2<4;s2++){ xx+= (r2()*16-8); yy+= dir[1]*(14+r2()*15); d+=' L '+xx.toFixed(0)+' '+yy.toFixed(0); }
+      el('path',{d,fill:'none',stroke:'#F0BE6A','stroke-width':3,'stroke-linecap':'round',opacity:0,id:'s6-f'+i+'_'+k},fg);
+    });
+  }
+})();
+const S6_WELL_D='M 932 306 L 932 660 Q 932 700 972 700 L 1560 700';
+$('s6-well').setAttribute('d',S6_WELL_D);
+const s6_len=$('s6-well').getTotalLength();
+$('s6-well').style.strokeDasharray=s6_len;
+function upd6(lt){
+  $('s6-head').setAttribute('opacity', seg(lt,0.5,0.9));
+  $('s6-rig').setAttribute('opacity', seg(lt,0.9,0.7));
+  $('s6-well').style.strokeDashoffset = s6_len*(1-easeInOut(seg(lt,1.5,3.4)));
+  for(let i=0;i<11;i++){
+    const p=seg(lt, 5.2+i*0.34, 0.5);
+    ['0','1'].forEach(k=>{ $('s6-f'+i+'_'+k).setAttribute('opacity', p*0.95); });
+  }
+  [1,2,3].forEach((si,k)=>{
+    const e=$('s6-n'+si); if(e) e.setAttribute('opacity', seg(lt, 6.4+k*0.5, 0.8));
+  });
+}
+
+/* ---------- SCENE 7 build ---------- */
+const S7_BARS=[ {n:'PERMIAN', v:6.5, c:'#E2A648'}, {n:'EAGLE FORD', v:1.1, c:'#41597A'}, {n:'BAKKEN', v:1.0, c:'#41597A'} ];
+(function(){
+  const g=$('s7-bars');
+  S7_BARS.forEach((b,i)=>{
+    const y=i*86;
+    el('text',{x:-30,y:y+38,'text-anchor':'end',class:'sans','font-size':25,'font-weight':600,fill: i? '#8399B3':'#F0BE6A','letter-spacing':2,id:'s7-bn'+i},g).textContent=b.n;
+    el('rect',{x:0,y:y,width:0,height:54,rx:6,fill:b.c,id:'s7-br'+i, opacity: i?0.75:1},g);
+    el('text',{x:0,y:y+38,class:'sans','font-size':26,'font-weight':600,fill:'#F2EAD9',id:'s7-bv'+i,opacity:0},g);
+  });
+})();
+function upd7(lt){
+  $('s7-kick').setAttribute('opacity', seg(lt,0.4,0.7));
+  const cp=easeOut(seg(lt,0.8,2.2));
+  const val=6.5*cp;
+  const big=$('s7-big');
+  big.textContent = val.toFixed(1)+'M';
+  big.setAttribute('opacity', seg(lt,0.8,0.6));
+  big.setAttribute('transform','translate(0,'+(1-easeOut(seg(lt,0.8,0.9)))*40+')');
+  $('s7-unit').setAttribute('opacity', seg(lt,1.5,0.9));
+  S7_BARS.forEach((b,i)=>{
+    const p=easeInOut(seg(lt,2.6+i*0.4,1.2));
+    const w=b.v/6.5*800*p;
+    $('s7-br'+i).setAttribute('width',w);
+    const tv=$('s7-bv'+i);
+    tv.setAttribute('x', w+22);
+    tv.setAttribute('opacity', seg(lt,3.3+i*0.4,0.6));
+    tv.textContent=b.v.toFixed(1)+'M bbl/d';
+  });
+  $('s7-src').setAttribute('opacity', seg(lt,4.4,0.9));
+}
+
+/* ---------- SCENE 8 build ---------- */
+(function(){
+  const sg=$('s8-stars'); const rnd=mulberry32(11);
+  for(let i=0;i<70;i++) el('circle',{cx:rnd()*1920, cy:rnd()*430, r:0.9+rnd()*1.6, fill:'#C9D4E2','data-o':rnd().toFixed(3),id:'s8-st'+i},sg);
+  /* pumpjack (scaled ~ 1.35) */
+  const pj=$('s8-pj'); const c='#02060C';
+  const S=1.5;
+  pj.setAttribute('transform','translate(1300,868) scale('+S+')');
+  el('rect',{x:-150,y:-6,width:330,height:8,fill:c},pj);                      /* base */
+  el('polygon',{points:'-10,0 34,0 12,-118',fill:c},pj);                       /* samson post */
+  const beam=el('g',{id:'s8-beam'},pj);
+  el('rect',{x:-118,y:-130,width:246,height:14,rx:4,fill:c},beam);            /* walking beam */
+  el('path',{d:'M -118 -123 l -34 -16 l 0 44 l 34 -14 Z',fill:c},beam);       /* horsehead */
+  el('line',{x1:-136,y1:-132,x2:-136,y2:-30,stroke:c,'stroke-width':5,id:'s8-bridle'},beam);
+  const crank=el('g',{id:'s8-crank'},pj);
+  el('circle',{cx:118,cy:-34,r:34,fill:c},crank);
+  el('circle',{cx:118,cy:-34,r:7,fill:'#0E1B2E'},crank);
+  el('line',{x1:118,y1:-34,x2:118,y2:-72,stroke:c,'stroke-width':10,id:'s8-cpin'},crank);
+  el('line',{x1:118,y1:-72,x2:128,y2:-123,stroke:c,'stroke-width':9,id:'s8-pitman'},pj);
+  el('rect',{x:84,y:-18,width:70,height:18,fill:c},pj);                        /* motor block */
+})();
+function upd8(lt){
+  const th=lt*2*Math.PI/3.4;
+  const beamA = 7.5*Math.sin(th);
+  $('s8-beam').setAttribute('transform','rotate('+beamA+' 12 -123)');
+  /* crank pin position */
+  const ca = th*57.2958;
+  $('s8-crank').setAttribute('transform','rotate('+ca+' 118 -34)');
+  /* pitman: from rotated crank pin tip to beam tail (approx) */
+  const px=118+38*Math.sin(th), py=-34-38*Math.cos(th);
+  const bx=12+116*Math.cos(beamA*0.01745), by=-123+116*Math.sin(beamA*0.01745);
+  $('s8-pitman').setAttribute('x1',px); $('s8-pitman').setAttribute('y1',py);
+  $('s8-pitman').setAttribute('x2',bx); $('s8-pitman').setAttribute('y2',by);
+  for(let i=0;i<70;i++){ const e=$('s8-st'+i); e.setAttribute('opacity', 0.25+0.45*Math.abs(Math.sin(lt*1.4+parseFloat(e.dataset.o)*8))); }
+  $('s8-kick').setAttribute('opacity', seg(lt,0.6,0.8));
+  const h1=easeOut(seg(lt,0.95,0.9));
+  $('s8-h1').setAttribute('opacity',h1); $('s8-h1').setAttribute('transform','translate(0,'+(1-h1)*34+')');
+  const h2=easeOut(seg(lt,1.25,0.9));
+  $('s8-h2').setAttribute('opacity',h2); $('s8-h2').setAttribute('transform','translate(0,'+(1-h2)*34+')');
+  $('s8-sub').setAttribute('opacity', seg(lt,2.0,0.9));
+}
+
+/* ---------- master ---------- */
+const UPD={s1:upd1,s2:upd2,s3:upd3,s4:upd4,s5:upd5,s6:upd6,s7:upd7,s8:upd8};
+function renderFrame(t){
+  SCENES.forEach(sc=>{
+    const node=$(sc.id);
+    const lt=t-sc.start;
+    if(lt < -XF || lt > sc.dur+XF){ node.style.opacity=0; return; }
+    const fin  = sc.start===0 ? 1 : clamp((lt+XF)/(2*XF),0,1);
+    const fout = clamp((sc.dur+XF-lt)/(2*XF),0,1);
+    node.style.opacity = (easeInOut(fin)*easeInOut(fout)).toFixed(3);
+    /* subtle ken-burns drift on every scene */
+    const kp = clamp(lt/sc.dur,0,1);
+    node.style.transform = 'scale('+(1.015+kp*0.022)+')';
+    UPD[sc.id](clamp(lt,0,sc.dur));
+  });
+  /* final fade to black */
+  $('fadeblack').style.opacity = clamp((t-(TOTAL-1.0))/1.0,0,1);
+  return true;
+}
+window.renderFrame=renderFrame;
+window.TOTAL=TOTAL;
+renderFrame(0);
+</script>
+</body>
+</html>
