@@ -1,0 +1,335 @@
+<title>IC Analyst — How It Works</title>
+<style>
+  :root {
+    --paper:#F5F6F8; --surface:#FFFFFF; --surface-2:#EEF1F5;
+    --ink:#16212B; --ink-soft:#4A5763; --ink-faint:#78838F;
+    --rule:#DCE1E8; --rule-strong:#C3CBD5;
+    --navy:#1F3A5F; --brass:#8C6416;
+    --go:#1E7A46; --go-bg:#E4F1E9;
+    --cond:#9C6410; --cond-bg:#F6ECD8;
+    --nogo:#A9382A; --nogo-bg:#F5E1DC;
+    --font-display:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,'SF Mono','Cascadia Mono',Menlo,Consolas,monospace;
+    --maxw:1080px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0E141B; --surface:#151E27; --surface-2:#1B2732;
+      --ink:#E8EDF2; --ink-soft:#9EABB8; --ink-faint:#71808D;
+      --rule:#26323D; --rule-strong:#33424F;
+      --navy:#7BA4D6; --brass:#CB9A4A;
+      --go:#4FB782; --go-bg:#132A20;
+      --cond:#DBA34A; --cond-bg:#2C2413;
+      --nogo:#DC6C56; --nogo-bg:#2E1A16;
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#F5F6F8; --surface:#FFFFFF; --surface-2:#EEF1F5;
+    --ink:#16212B; --ink-soft:#4A5763; --ink-faint:#78838F;
+    --rule:#DCE1E8; --rule-strong:#C3CBD5;
+    --navy:#1F3A5F; --brass:#8C6416;
+    --go:#1E7A46; --go-bg:#E4F1E9; --cond:#9C6410; --cond-bg:#F6ECD8; --nogo:#A9382A; --nogo-bg:#F5E1DC;
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E141B; --surface:#151E27; --surface-2:#1B2732;
+    --ink:#E8EDF2; --ink-soft:#9EABB8; --ink-faint:#71808D;
+    --rule:#26323D; --rule-strong:#33424F;
+    --navy:#7BA4D6; --brass:#CB9A4A;
+    --go:#4FB782; --go-bg:#132A20; --cond:#DBA34A; --cond-bg:#2C2413; --nogo:#DC6C56; --nogo-bg:#2E1A16;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--font-sans);line-height:1.55;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:clamp(24px,5vw,64px) clamp(18px,4vw,44px);}
+
+  .eyebrow{font-family:var(--font-sans);font-size:.72rem;font-weight:600;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--brass);}
+  h1{font-family:var(--font-display);font-weight:700;letter-spacing:-.01em;text-wrap:balance;
+    font-size:clamp(2.1rem,5vw,3.1rem);line-height:1.04;margin:.35em 0 .12em;}
+  h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.3rem,2.6vw,1.6rem);
+    letter-spacing:-.01em;margin:0;text-wrap:balance;}
+  .lede{font-size:clamp(1.02rem,1.7vw,1.18rem);color:var(--ink-soft);max-width:60ch;margin:.4em 0 0;}
+
+  /* masthead */
+  .mast{border-bottom:2px solid var(--navy);padding-bottom:26px;}
+  .mast .meta{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:20px;}
+  .tag{font-family:var(--font-mono);font-size:.74rem;color:var(--ink-soft);
+    background:var(--surface-2);border:1px solid var(--rule);border-radius:999px;padding:4px 11px;}
+  .tag b{color:var(--ink);font-weight:600}
+
+  section{margin-top:clamp(34px,6vw,56px);}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;}
+  .sec-head .num{font-family:var(--font-mono);font-size:.8rem;color:var(--brass);font-weight:600;
+    border:1px solid var(--rule-strong);border-radius:6px;padding:2px 8px;flex:none;}
+  .sec-note{color:var(--ink-soft);font-size:.95rem;margin:-8px 0 20px;max-width:64ch;}
+
+  /* run modes */
+  .modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+  .card{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 22px;
+    display:flex;flex-direction:column;gap:9px;}
+  .card .k{font-family:var(--font-sans);font-size:.72rem;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--navy);}
+  .card h3{font-family:var(--font-display);font-size:1.16rem;margin:0;font-weight:700;}
+  .card p{margin:0;color:var(--ink-soft);font-size:.92rem;}
+  .card code{font-family:var(--font-mono);font-size:.82rem;background:var(--surface-2);
+    border:1px solid var(--rule);border-radius:6px;padding:3px 7px;color:var(--ink);
+    align-self:flex-start;max-width:100%;overflow-x:auto;white-space:nowrap;}
+
+  /* workflow */
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2px;
+    background:var(--rule);border:1px solid var(--rule);border-radius:12px;overflow:hidden;}
+  .step{background:var(--surface);padding:18px 20px;display:flex;flex-direction:column;gap:6px;}
+  .step .n{font-family:var(--font-mono);font-size:.78rem;color:var(--brass);font-weight:600;}
+  .step h4{margin:0;font-size:1.02rem;font-family:var(--font-display);font-weight:700;}
+  .step p{margin:0;font-size:.88rem;color:var(--ink-soft);}
+
+  /* rubric tables */
+  .rubric{background:var(--surface);border:1px solid var(--rule);border-radius:12px;overflow:hidden;}
+  .rubric-cap{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;
+    padding:16px 20px;border-bottom:1px solid var(--rule);background:var(--surface-2);}
+  .rubric-cap .cls{font-family:var(--font-display);font-weight:700;font-size:1.12rem;}
+  .rubric-cap .pts{font-family:var(--font-mono);font-size:.82rem;color:var(--ink-soft);}
+  .tscroll{overflow-x:auto;}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:520px;}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--rule);vertical-align:top;}
+  thead th{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);
+    font-weight:700;background:var(--surface);}
+  tbody tr:last-child td{border-bottom:none;}
+  td.g{font-family:var(--font-mono);color:var(--ink-faint);width:2.2em;}
+  td.max{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600;
+    color:var(--navy);text-align:right;width:3.2em;white-space:nowrap;}
+  td.gate{font-weight:600;color:var(--ink);white-space:nowrap;}
+  td.rule{color:var(--ink-soft);font-family:var(--font-mono);font-size:.82rem;}
+  .crit{display:inline-block;margin-left:7px;font-family:var(--font-sans);font-size:.6rem;font-weight:700;
+    letter-spacing:.08em;color:var(--nogo);border:1px solid var(--nogo);border-radius:4px;padding:1px 5px;
+    vertical-align:middle;text-transform:uppercase;}
+  tfoot td{background:var(--surface-2);font-weight:700;}
+  tfoot .max{color:var(--ink);}
+
+  /* verdict + veto */
+  .grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;}
+  @media (max-width:760px){.grid2{grid-template-columns:1fr}}
+  .bands{display:flex;flex-direction:column;gap:10px;}
+  .band{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--rule);
+    border-radius:10px;padding:13px 16px;}
+  .chip{font-family:var(--font-sans);font-weight:700;font-size:.78rem;letter-spacing:.04em;
+    padding:5px 12px;border-radius:999px;white-space:nowrap;flex:none;min-width:112px;text-align:center;}
+  .chip.go{background:var(--go-bg);color:var(--go);border:1px solid var(--go);}
+  .chip.cond{background:var(--cond-bg);color:var(--cond);border:1px solid var(--cond);}
+  .chip.nogo{background:var(--nogo-bg);color:var(--nogo);border:1px solid var(--nogo);}
+  .band .d{font-size:.92rem;color:var(--ink-soft);}
+  .band .d b{color:var(--ink);font-variant-numeric:tabular-nums;}
+  .veto{background:var(--nogo-bg);border:1px solid var(--nogo);border-radius:10px;padding:16px 18px;}
+  .veto h4{margin:0 0 8px;font-family:var(--font-display);color:var(--nogo);font-size:1.02rem;}
+  .veto ul{margin:0;padding-left:18px;color:var(--ink-soft);font-size:.9rem;}
+  .veto li{margin:4px 0;}
+  .veto li b{color:var(--ink);}
+
+  .foot{margin-top:52px;padding-top:20px;border-top:1px solid var(--rule);
+    display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
+    color:var(--ink-faint);font-size:.8rem;}
+  .foot .note{max-width:60ch;}
+  .stress{margin-top:14px;background:var(--surface);border:1px dashed var(--rule-strong);
+    border-radius:10px;padding:14px 16px;font-size:.9rem;color:var(--ink-soft);}
+  .stress b{color:var(--ink);}
+  em.src{font-style:normal;font-family:var(--font-mono);font-size:.8rem;color:var(--brass);}
+  /* worked example */
+  .ex{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--go);
+    border-radius:12px;padding:22px 24px;}
+  .ex-top{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:6px;}
+  .ex-top .name{font-family:var(--font-display);font-weight:700;font-size:1.18rem;}
+  .ex-sub{color:var(--ink-soft);font-size:.92rem;margin:0 0 16px;}
+  .ex-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+    background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+  .ex-nums .cell{background:var(--surface-2);padding:12px 15px;}
+  .ex-nums .cell .lab{font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;}
+  .ex-nums .cell .val{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:1.12rem;
+    font-weight:600;color:var(--ink);margin-top:3px;}
+  .ex-nums .cell .val.go{color:var(--go);}
+  .ex-read{font-size:.92rem;color:var(--ink-soft);margin:0;}
+  .ex-read b{color:var(--ink);}
+  @media print{body{background:#fff}.card,.rubric,.band,.flow,.step,.ex{break-inside:avoid}}
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="eyebrow">USEDC · Investment Committee · Underwriting Automation</div>
+    <h1>The IC Analyst</h1>
+    <p class="lede">A virtual investment-committee analyst. Drop a deal in, and it scores the
+      opportunity against a fixed Go/No-Go rubric, stress-tests the downside, and returns a
+      committee-ready report — deterministic math, no guesswork, no fabricated numbers.</p>
+    <div class="meta">
+      <span class="tag"><b>Asset classes</b> &nbsp;Self-storage · Factory-platform funds</span>
+      <span class="tag"><b>Accepts</b> &nbsp;.xlsx · .xlsm · .csv · .pdf</span>
+      <span class="tag"><b>Any layout</b> &nbsp;maps metric synonyms automatically</span>
+    </div>
+  </header>
+
+  <!-- HOW TO RUN -->
+  <section>
+    <div class="sec-head"><span class="num">A</span><h2>Three ways to run it</h2></div>
+    <p class="sec-note">Same engine behind all three — choose the one that fits the moment.</p>
+    <div class="modes">
+      <div class="card">
+        <span class="k">On demand</span>
+        <h3>Type a command</h3>
+        <p>Drop the file in the inbox and run the routine. It scores, writes the report, and
+          briefs the verdict in chat.</p>
+        <code>/ic&nbsp;&nbsp;·&nbsp;&nbsp;/ic deal.pdf</code>
+      </div>
+      <div class="card">
+        <span class="k">Real time</span>
+        <h3>Watch the folder</h3>
+        <p>Leave the watcher running. Any deal dropped into the inbox is scored the instant it
+          lands — no command needed.</p>
+        <code>python3 scripts/ic_watch.py</code>
+      </div>
+      <div class="card">
+        <span class="k">Scheduled</span>
+        <h3>GitHub Action</h3>
+        <p>A weekly health check plus on-demand scoring. Verdicts print in the run summary;
+          reports come back as downloadable artifacts.</p>
+        <code>Actions ▸ Run workflow</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKFLOW -->
+  <section>
+    <div class="sec-head"><span class="num">B</span><h2>What happens to a deal</h2></div>
+    <div class="flow">
+      <div class="step"><span class="n">01</span><h4>Drop</h4>
+        <p>A pro forma lands in <code>deals/inbox/</code>. Any layout — the engine reads by label,
+          not cell position.</p></div>
+      <div class="step"><span class="n">02</span><h4>Score</h4>
+        <p>Metrics are mapped by synonym, run through the rubric, and stress-tested. Missing
+          inputs fail their gate — never invented.</p></div>
+      <div class="step"><span class="n">03</span><h4>Report</h4>
+        <p>A formatted workbook is written to <code>deals/reports/</code>; the input moves to
+          <code>deals/processed/</code>.</p></div>
+      <div class="step"><span class="n">04</span><h4>Brief</h4>
+        <p>The verdict, score, the gates that drove it, and the stress result are summarized for
+          the committee.</p></div>
+    </div>
+  </section>
+
+  <!-- STORAGE RUBRIC -->
+  <section>
+    <div class="sec-head"><span class="num">C</span><h2>The scorecard — self-storage deals</h2></div>
+    <p class="sec-note">Nine gates, 100 points. <span style="color:var(--nogo);font-weight:600">Critical</span>
+      gates also act as vetoes: failing any one is an automatic NO-GO regardless of total score.</p>
+    <div class="rubric">
+      <div class="rubric-cap"><span class="cls">Self-storage acquisition / development</span>
+        <span class="pts">9 gates · 100 pts</span></div>
+      <div class="tscroll">
+      <table>
+        <thead><tr><th>#</th><th>Gate</th><th>Max</th><th>Scoring rule</th></tr></thead>
+        <tbody>
+          <tr><td class="g">1</td><td class="gate">IRR beats exit cap<span class="crit">Veto</span></td><td class="max">15</td><td class="rule">Equity IRR &gt; exit cap → 15 · else 0</td></tr>
+          <tr><td class="g">2</td><td class="gate">Yield clears floor<span class="crit">Veto</span></td><td class="max">15</td><td class="rule">≥7.5% → 15 · ≥6.5% → 7.5 · else 0</td></tr>
+          <tr><td class="g">3</td><td class="gate">Op-ex in range</td><td class="max">10</td><td class="rule">≤30% → 10 · ≤35% → 5 · ≤45% → 2.5 · else 0</td></tr>
+          <tr><td class="g">4</td><td class="gate">Population ≥ 200k<span class="crit">Veto</span></td><td class="max">12</td><td class="rule">≥200,000 → 12 · else 0</td></tr>
+          <tr><td class="g">5</td><td class="gate">Positive pop growth</td><td class="max">10</td><td class="rule">≥5% → 10 · &gt;0% → 5 · ≤0% → 0 · missing → 5</td></tr>
+          <tr><td class="g">6</td><td class="gate">Pipeline contained</td><td class="max">10</td><td class="rule">≤5% → 10 · ≤10% → 5 · else 0 · missing → 5</td></tr>
+          <tr><td class="g">7</td><td class="gate">Return clears target</td><td class="max">13</td><td class="rule">dev ≥15%→13 / ≥12%→6.5 · else ≥10%→13 / ≥7%→6.5</td></tr>
+          <tr><td class="g">8</td><td class="gate">Market upper half</td><td class="max">8</td><td class="rule">rank ≤123 → 8 · ≤184 → 4 · else 0 · missing → 4</td></tr>
+          <tr><td class="g">9</td><td class="gate">Size near 75k NRSF</td><td class="max">7</td><td class="rule">40k–120k NRSF → 7 · otherwise 3.5</td></tr>
+        </tbody>
+        <tfoot><tr><td></td><td class="gate">Total</td><td class="max">100</td><td class="rule">Verdict bands below</td></tr></tfoot>
+      </table>
+      </div>
+    </div>
+    <div class="stress"><b>Downside stress test</b> — exit cap +50 bps, NOI −5%. Marked
+      <b>robust</b> only if the stressed yield-on-cost holds ≥ 6.5%, the development spread stays
+      non-negative, and equity IRR still beats the stressed exit cap. Otherwise <b>fragile</b>.</div>
+  </section>
+
+  <!-- FACTORY FUND RUBRIC -->
+  <section>
+    <div class="sec-head"><span class="num">D</span><h2>The scorecard — factory-platform funds</h2></div>
+    <p class="sec-note">A separate rubric for multi-region modular-factory / workforce-housing platform
+      funds. Scored on the conservative <em class="src">Y5 (8× EBITDA)</em> exit for the headline verdict,
+      with the mature <em class="src">Y10 (10×)</em> exit shown as upside.</p>
+    <div class="rubric">
+      <div class="rubric-cap"><span class="cls">Modular-factory / workforce-housing platform fund</span>
+        <span class="pts">8 gates · 100 pts</span></div>
+      <div class="tscroll">
+      <table>
+        <thead><tr><th>#</th><th>Gate</th><th>Max</th><th>Scoring rule</th></tr></thead>
+        <tbody>
+          <tr><td class="g">1</td><td class="gate">LP IRR clears target<span class="crit">Veto</span></td><td class="max">18</td><td class="rule">≥20% → 18 · ≥12% → 9 · ≥8% pref → 4.5 · else 0</td></tr>
+          <tr><td class="g">2</td><td class="gate">LP MOIC</td><td class="max">15</td><td class="rule">≥3.0× → 15 · ≥2.0× → 7.5 · ≥1.5× → 3.75 · else 0</td></tr>
+          <tr><td class="g">3</td><td class="gate">Return beats LP pref<span class="crit">Veto</span></td><td class="max">12</td><td class="rule">LP IRR &gt; 8% pref → 12 · else 0</td></tr>
+          <tr><td class="g">4</td><td class="gate">§1202 QSBS eligible</td><td class="max">15</td><td class="rule">C-corp at issuance → 15 · else 0</td></tr>
+          <tr><td class="g">5</td><td class="gate">GP alignment (co-invest)</td><td class="max">10</td><td class="rule">≥10% → 10 · ≥5% → 5 · else 0</td></tr>
+          <tr><td class="g">6</td><td class="gate">Capacity vs TAM</td><td class="max">12</td><td class="rule">req. share ≤40% → 12 · ≤60% → 6 · else 0</td></tr>
+          <tr><td class="g">7</td><td class="gate">Market diversification</td><td class="max">10</td><td class="rule">≥5 regions &amp; ≥15 T1 → 10 · ≥3 regions → 5 · else 0</td></tr>
+          <tr><td class="g">8</td><td class="gate">Capital concentration</td><td class="max">8</td><td class="rule">top region ≤30% → 8 · ≤50% → 4 · else 0</td></tr>
+        </tbody>
+        <tfoot><tr><td></td><td class="gate">Total</td><td class="max">100</td><td class="rule">Verdict bands below</td></tr></tfoot>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKED EXAMPLE -->
+  <section>
+    <div class="sec-head"><span class="num">E</span><h2>A worked example</h2></div>
+    <p class="sec-note">The Regional Factory Platform fund, run through scorecard D. Anchored on the
+      conservative Y5 exit; the mature Y10 exit is stronger still.</p>
+    <div class="ex">
+      <div class="ex-top">
+        <span class="name">Regional Factory Platform</span>
+        <span class="chip go">GO</span>
+        <span class="ex-sub" style="margin:0">5 regions · 17 factories · $114.3M LP raise</span>
+      </div>
+      <div class="ex-nums">
+        <div class="cell"><div class="lab">Y5 verdict (8×)</div><div class="val go">GO · 86.5 / 100</div></div>
+        <div class="cell"><div class="lab">Y10 upside (10×)</div><div class="val go">GO · 94 / 100</div></div>
+        <div class="cell"><div class="lab">Y5 LP return</div><div class="val">24.2% · 2.96×</div></div>
+        <div class="cell"><div class="lab">Y10 LP return</div><div class="val">26.3% · 10.35×</div></div>
+      </div>
+      <p class="ex-read"><b>What carried it:</b> full marks on LP IRR, beating the 8% pref, §1202
+        eligibility, GP alignment, diversification, and low capital concentration. <b>Where it left
+        points:</b> MOIC at 2.96× sits just under the 3.0× line, and the plan needs ~56% market share
+        (aggressive absorption). <b>No vetoes fired.</b></p>
+    </div>
+  </section>
+
+  <!-- VERDICT + VETO -->
+  <section>
+    <div class="sec-head"><span class="num">F</span><h2>Reading the verdict</h2></div>
+    <div class="grid2">
+      <div class="bands">
+        <div class="band"><span class="chip go">GO</span>
+          <span class="d">Score <b>≥ 70</b> and no veto — clears the committee's bar.</span></div>
+        <div class="band"><span class="chip cond">CONDITIONAL GO</span>
+          <span class="d">Score <b>50 – 69.9</b> — workable, but flagged gates need a closer look.</span></div>
+        <div class="band"><span class="chip nogo">NO-GO</span>
+          <span class="d">Score <b>&lt; 50</b>, <i>or</i> any veto fired — pass.</span></div>
+      </div>
+      <div class="veto">
+        <h4>Automatic vetoes</h4>
+        <p style="margin:0 0 8px;color:var(--ink-soft);font-size:.88rem;">Any one forces NO-GO,
+          whatever the total.</p>
+        <ul>
+          <li><b>Storage:</b> IRR ≤ exit cap · yield &lt; 6.5% · population &lt; 200k</li>
+          <li><b>Factory fund:</b> LP IRR ≤ 8% pref · MOIC &lt; 1.5×</li>
+          <li>A missing critical input counts as a fail — the engine never fills a gap with a guess.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span class="note">Analysis to support the committee's decision — not investment advice.
+      Every threshold is a named, editable constant; verdicts always show the input and the
+      threshold each gate was measured against.</span>
+    <span>IC Analyst · deterministic underwriting engine</span>
+  </div>
+
+</div>
