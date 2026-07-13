@@ -4,6 +4,7 @@ anthropic>=0.69.0
 # Financial document parsing
 pandas>=2.0.0
 openpyxl>=3.1.0          # .xlsx
+numpy-financial>=1.0.0     # IRR from cash flows (IC Analyst engine)
 xlrd>=2.0.1              # legacy .xls
 
 # Geospatial / parcel & land-area analysis

@@ -21,3 +21,9 @@ Tanglewood_*
 # IC engine: real benchmark economics & saved candidates stay local (example is committed)
 ic_data/benchmarks.json
 ic_data/candidates.json
+
+# IC Analyst runtime folders (keep dirs, ignore deal files/reports)
+deals/inbox/*
+deals/processed/*
+deals/reports/*
+!deals/*/.gitkeep
