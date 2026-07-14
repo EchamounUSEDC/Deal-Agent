@@ -13,12 +13,12 @@ export const FPS = 30;
 // If you replace the voiceover, adjust these (and src/config/captions.ts).
 export const SCENE_SECONDS = {
   scene1Title: 5, //       0:00–0:05  Rig footage + logo + title
-  scene2Benefits: 6.67, // 0:05–0:12  Three benefit statements
-  scene3Map: 9.54, //      0:12–0:21  U.S. basin map
+  scene2Benefits: 6.42, // 0:05–0:11  Three benefit statements
+  scene3Map: 9.54, //      0:11–0:21  U.S. basin map
   scene4TaxStats: 17.84, //0:21–0:39  Tax-benefit statistics
-  scene5CashFlow: 11.1, // 0:39–0:50  Revenue flow / 12% cash flow
+  scene5CashFlow: 11.11, //0:39–0:50  Revenue flow / 12% cash flow
   scene6Timeline: 8.59, // 0:50–0:59  Distribution timeline
-  scene7EndCard: 7.5, //   0:59–1:06  Hero shot + end card
+  scene7EndCard: 7.22, //  0:59–1:06  Hero shot + end card
 } as const;
 
 export type SceneKey = keyof typeof SCENE_SECONDS;
