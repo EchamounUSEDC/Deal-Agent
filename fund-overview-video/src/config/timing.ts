@@ -8,14 +8,17 @@
 
 export const FPS = 30;
 
+// Durations are tuned to the recorded narration in
+// public/assets/audio/narration.mp3 so each paragraph lands on its scene.
+// If you replace the voiceover, adjust these (and src/config/captions.ts).
 export const SCENE_SECONDS = {
-  scene1Title: 5, //    0:00–0:05  Rig footage + logo + title
-  scene2Benefits: 8, // 0:05–0:13  Three benefit statements
-  scene3Map: 8, //      0:13–0:21  U.S. basin map
-  scene4TaxStats: 13, //0:21–0:34  Tax-benefit statistics
-  scene5CashFlow: 11, //0:34–0:45  Revenue flow / 12% cash flow
-  scene6Timeline: 8, // 0:45–0:53  Distribution timeline
-  scene7EndCard: 7, //  0:53–1:00  Hero shot + end card
+  scene1Title: 5, //       0:00–0:05  Rig footage + logo + title
+  scene2Benefits: 6.67, // 0:05–0:12  Three benefit statements
+  scene3Map: 9.54, //      0:12–0:21  U.S. basin map
+  scene4TaxStats: 17.84, //0:21–0:39  Tax-benefit statistics
+  scene5CashFlow: 11.1, // 0:39–0:50  Revenue flow / 12% cash flow
+  scene6Timeline: 8.59, // 0:50–0:59  Distribution timeline
+  scene7EndCard: 7.5, //   0:59–1:06  Hero shot + end card
 } as const;
 
 export type SceneKey = keyof typeof SCENE_SECONDS;

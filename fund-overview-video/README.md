@@ -74,17 +74,24 @@ clip, edit the `src` candidate list in the corresponding file under
 Footage is displayed with `object-fit: cover`, a slow controlled zoom, and a
 navy overlay for text legibility — 1080p or higher source is recommended.
 
-### Replacing narration and music
+### Narration and music
 
 ```
-public/assets/audio/narration.mp3   # voiceover (full level)
-public/assets/audio/music.mp3       # instrumental bed (ducked to ~12%, looped)
+public/assets/audio/narration.mp3   # voiceover (full level) — INCLUDED
+public/assets/audio/music.mp3       # instrumental bed (ducked to ~12%, looped) — add your own
 ```
 
-Both are optional; missing files simply render silent. After recording the
-voiceover (script below), adjust the caption cue times in
-`src/config/captions.ts` so each caption matches the spoken phrase — cues
-are plain `{start, end, text}` objects in seconds.
+A narration recording is **included**: it was synthesized locally with the
+open-source Kokoro neural TTS model (Apache-2.0) via `sherpa-onnx`, using the
+"am_michael" voice at a broadcast pace. Scene durations in
+`src/config/timing.ts` and caption cues in `src/config/captions.ts` are
+timed to this recording (total runtime ≈ 66 s).
+
+To replace it with a studio voiceover, overwrite `narration.mp3` (script
+below), then re-time `SCENE_SECONDS` and the caption cues to the new read.
+Music is optional and not included — drop an approved instrumental bed at
+`music.mp3` and it is automatically looped, ducked under the narration, and
+faded out. Missing audio files simply render silent.
 
 ### Narration script
 
@@ -133,15 +140,17 @@ use absolute seconds, so shift them if you re-time scenes.
 
 ## Timeline
 
+Times reflect the current narration-synced durations (≈ 66 s total).
+
 | Scene | Time | Content |
 | --- | --- | --- |
 | 1 | 0:00–0:05 | Rig footage, logo, red rule, "2026 DRILLING FUND" |
-| 2 | 0:05–0:13 | Three benefit statements, one at a time |
-| 3 | 0:13–0:21 | Animated U.S. basin map (SVG) |
-| 4 | 0:21–0:34 | Sequential tax-benefit statistics with count-up |
-| 5 | 0:34–0:45 | 12% cash-flow target + revenue-flow graphic |
-| 6 | 0:45–0:53 | 12-month distribution timeline |
-| 7 | 0:53–1:00 | Rig hero shot → navy end card, "Learn More" |
+| 2 | 0:05–0:12 | Three benefit statements, one at a time |
+| 3 | 0:12–0:21 | Animated U.S. basin map (SVG) |
+| 4 | 0:21–0:39 | Sequential tax-benefit statistics with count-up |
+| 5 | 0:39–0:50 | 12% cash-flow target + revenue-flow graphic |
+| 6 | 0:50–0:59 | 12-month distribution timeline |
+| 7 | 0:59–1:06 | Rig hero shot → navy end card, "Learn More" |
 
 ## Compliance note
 

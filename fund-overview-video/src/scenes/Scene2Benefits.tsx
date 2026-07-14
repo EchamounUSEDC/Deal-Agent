@@ -32,8 +32,8 @@ export const Scene2Benefits: React.FC = () => {
             'CASH FLOW',
             'LONG-TERM CAPITAL APPRECIATION',
           ]}
-          delay={16}
-          stagger={62}
+          delay={54}
+          stagger={42}
           fontSize={68}
         />
       </AbsoluteFill>
