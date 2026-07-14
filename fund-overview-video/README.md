@@ -1,8 +1,13 @@
-# U.S. Energy Development Corporation — 2026 Drilling Fund Overview
+# U.S. Energy Development Corporation — Fund Overview Videos
 
-A 60-second, 1920x1080 / 30 fps institutional fund-overview video built with
+Institutional fund-overview videos (1920x1080 / 30 fps, ~60s) built with
 [Remotion](https://www.remotion.dev), React, TypeScript, and CSS/SVG motion
-graphics. The final composition ID is **`FundOverview2026`**.
+graphics. Two compositions are registered:
+
+| Composition ID | Fund | Narration file |
+| --- | --- | --- |
+| `FundOverview2026` | 2026 Drilling Fund | `public/assets/audio/narration.mp3` |
+| `PCFIIIOverview` | Private Capital Fund III | `public/assets/audio/pcf3-narration.mp3` |
 
 ## Quick start
 
@@ -13,8 +18,9 @@ npm install
 # Interactive preview
 npm run studio
 
-# Render the final MP4 to out/FundOverview2026.mp4
-npm run render
+# Render to out/
+npm run render                                            # FundOverview2026
+npx remotion render PCFIIIOverview out/PCFIIIOverview.mp4  # PCF III
 
 # In a headless/CI environment with a system Chromium:
 REMOTION_BROWSER_EXECUTABLE=/path/to/chromium npm run render
@@ -24,12 +30,28 @@ REMOTION_BROWSER_EXECUTABLE=/path/to/chromium npm run render
 
 | Path | Purpose |
 | --- | --- |
-| `src/config/timing.ts` | **Central timing configuration** — scene durations (seconds), FPS, dimensions, title-safe margin. Edit durations here; everything recalculates. |
+| `src/config/timing.ts` | **Central timing configuration** for `FundOverview2026` — scene durations (seconds), FPS, dimensions, title-safe margin. Edit durations here; everything recalculates. |
 | `src/config/theme.ts` | Brand colors (`#00023F` navy, `#82171A` red), typography tokens. |
-| `src/config/captions.ts` | Caption cues synchronized with the narration. |
-| `src/scenes/` | The seven scenes of the timeline. |
-| `src/components/` | Reusable components: `BrandedTitle`, `StatisticCard`, `BenefitSequence`, `USMapAnimation`, `DistributionTimeline`, `BrollScene`, `DisclaimerFooter`, `EndCard`, plus `RevenueFlow`, `CaptionTrack`, `AudioTracks`, `Logo`, `AccentLine`, `SceneFade`. |
+| `src/config/captions.ts` | Caption cues for `FundOverview2026`. |
+| `src/scenes/` | The seven scenes of the 2026 Drilling Fund timeline. |
+| `src/components/` | Shared components: `BrandedTitle`, `StatisticCard`, `BenefitSequence`, `USMapAnimation`, `DistributionTimeline`, `BrollScene`, `DisclaimerFooter`, `EndCard`, plus `RevenueFlow`, `CaptionTrack`, `AudioTracks`, `Logo`, `AccentLine`, `SceneFade`, `usMapGeometry`. |
+| `src/pcf3/timing.ts` | **Central timing configuration** for `PCFIIIOverview`. |
+| `src/pcf3/captions.ts` | Caption cues for `PCFIIIOverview`. |
+| `src/pcf3/components/` | PCF III components: `IncomeGrowthSplit`, `AssetCategoryCard`, `USAssetMap`, `DripCompoundingAnimation`, `AccreditedInvestorScene`. |
+| `src/pcf3/scenes/` | The seven scenes of the PCF III timeline. |
 | `public/assets/` | All media (logo, b-roll, audio). |
+
+### PCF III b-roll slots
+
+The PCF III composition looks for `assets/energy-broll-01.mp4` and
+`assets/energy-broll-02.mp4` (per the asset brief), plus optional dedicated
+clips in `assets/broll/`: `producing.mp4`, `development.mp4`,
+`infrastructure.mp4`, `aerial.mp4`, `hero.mp4`. Every slot falls back down
+its candidate list (ending at `assets/rig-broll.mp4`) and renders a branded
+navy placeholder if nothing is supplied. Disclaimer and risk language lives
+inline in `src/pcf3/components/AccreditedInvestorScene.tsx` and
+`src/components/DisclaimerFooter.tsx` (default text) — edit those strings to
+match the offering documents.
 
 ## Media assets
 

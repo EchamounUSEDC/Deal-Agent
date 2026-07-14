@@ -17,7 +17,19 @@ import {DisclaimerFooter} from './DisclaimerFooter';
  */
 export const EndCard: React.FC<{
   delay?: number;
-}> = ({delay = 0}) => {
+  title?: string;
+  subtitle?: string | null;
+  /** Plain secondary line under the lockup (no border). */
+  tagline?: string | null;
+  /** Bordered call-to-action button text; null hides it. */
+  cta?: string | null;
+}> = ({
+  delay = 0,
+  title = 'U.S. ENERGY DEVELOPMENT CORPORATION',
+  subtitle = '2026 Drilling Fund',
+  tagline = null,
+  cta = 'Learn More',
+}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
 
@@ -69,36 +81,56 @@ export const EndCard: React.FC<{
             opacity: nameOpacity,
           }}
         >
-          U.S. ENERGY DEVELOPMENT CORPORATION
+          {title}
         </div>
-        <div
-          style={{
-            ...TYPE.label,
-            fontSize: 30,
-            letterSpacing: '0.3em',
-            color: COLORS.white70,
-            marginTop: 22,
-            opacity: nameOpacity,
-          }}
-        >
-          2026 Drilling Fund
-        </div>
-        <div
-          style={{
-            ...TYPE.body,
-            fontSize: 28,
-            fontWeight: 500,
-            letterSpacing: '0.24em',
-            textTransform: 'uppercase',
-            color: COLORS.white,
-            marginTop: 64,
-            padding: '18px 54px',
-            border: `1.5px solid ${COLORS.white30}`,
-            opacity: ctaOpacity,
-          }}
-        >
-          Learn More
-        </div>
+        {subtitle ? (
+          <div
+            style={{
+              ...TYPE.label,
+              fontSize: 30,
+              letterSpacing: '0.3em',
+              color: COLORS.white70,
+              marginTop: 22,
+              opacity: nameOpacity,
+              textAlign: 'center',
+            }}
+          >
+            {subtitle}
+          </div>
+        ) : null}
+        {tagline ? (
+          <div
+            style={{
+              ...TYPE.body,
+              fontSize: 27,
+              letterSpacing: '0.06em',
+              color: COLORS.white70,
+              marginTop: 46,
+              textAlign: 'center',
+              opacity: ctaOpacity,
+            }}
+          >
+            {tagline}
+          </div>
+        ) : null}
+        {cta ? (
+          <div
+            style={{
+              ...TYPE.body,
+              fontSize: 28,
+              fontWeight: 500,
+              letterSpacing: '0.24em',
+              textTransform: 'uppercase',
+              color: COLORS.white,
+              marginTop: 64,
+              padding: '18px 54px',
+              border: `1.5px solid ${COLORS.white30}`,
+              opacity: ctaOpacity,
+            }}
+          >
+            {cta}
+          </div>
+        ) : null}
       </div>
       <DisclaimerFooter delay={delay + 40} />
     </AbsoluteFill>

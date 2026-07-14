@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {CAPTIONS} from '../config/captions';
+import {CAPTIONS, CaptionCue} from '../config/captions';
 import {COLORS, FONT_FAMILY} from '../config/theme';
 import {TITLE_SAFE_MARGIN} from '../config/timing';
 
@@ -8,12 +8,14 @@ import {TITLE_SAFE_MARGIN} from '../config/timing';
  * Bottom-third captions synchronized with the narration. Rendered above all
  * scenes for the whole composition; individual cues fade in/out.
  */
-export const CaptionTrack: React.FC = () => {
+export const CaptionTrack: React.FC<{cues?: CaptionCue[]}> = ({
+  cues = CAPTIONS,
+}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = frame / fps;
 
-  const cue = CAPTIONS.find((c) => t >= c.start && t < c.end);
+  const cue = cues.find((c) => t >= c.start && t < c.end);
   if (!cue) {
     return null;
   }

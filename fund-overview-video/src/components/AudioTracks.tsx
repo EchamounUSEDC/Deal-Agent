@@ -11,36 +11,43 @@ export const MUSIC_PATH = 'assets/audio/music.mp3';
  * with a gentle fade-out at the end. Each track renders only if its file
  * has been supplied under public/assets/audio/.
  */
-export const AudioTracks: React.FC = () => {
+export const AudioTracks: React.FC<{
+  narrationPath?: string;
+  musicPath?: string;
+  /** Composition length used for the end fade (defaults to the 2026 fund). */
+  durationInFrames?: number;
+}> = ({
+  narrationPath = NARRATION_PATH,
+  musicPath = MUSIC_PATH,
+  durationInFrames = TOTAL_DURATION_IN_FRAMES,
+}) => {
   const {fps} = useVideoConfig();
-  const narrationExists = useAssetExists(NARRATION_PATH);
-  const musicExists = useAssetExists(MUSIC_PATH);
+  const narrationExists = useAssetExists(narrationPath);
+  const musicExists = useAssetExists(musicPath);
 
-  const fadeOutStart = TOTAL_DURATION_IN_FRAMES - Math.round(2.5 * fps);
+  const fadeOutStart = durationInFrames - Math.round(2.5 * fps);
 
   return (
     <>
       {narrationExists ? (
         <Audio
-          src={staticFile(NARRATION_PATH)}
+          src={staticFile(narrationPath)}
           volume={(f) =>
-            interpolate(
-              f,
-              [fadeOutStart, TOTAL_DURATION_IN_FRAMES],
-              [1, 0],
-              {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-            )
+            interpolate(f, [fadeOutStart, durationInFrames], [1, 0], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            })
           }
         />
       ) : null}
       {musicExists ? (
         <Audio
           loop
-          src={staticFile(MUSIC_PATH)}
+          src={staticFile(musicPath)}
           volume={(f) =>
             interpolate(
               f,
-              [0, Math.round(1.5 * fps), fadeOutStart, TOTAL_DURATION_IN_FRAMES],
+              [0, Math.round(1.5 * fps), fadeOutStart, durationInFrames],
               [0, 0.12, 0.12, 0],
               {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
             )
