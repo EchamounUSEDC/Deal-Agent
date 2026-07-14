@@ -1,0 +1,23 @@
+{
+  "name": "usedc-fund-overview-2026",
+  "version": "1.0.0",
+  "private": true,
+  "description": "U.S. Energy Development Corporation — 2026 Drilling Fund Overview video (Remotion)",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render FundOverview2026 out/FundOverview2026.mp4",
+    "still": "remotion still FundOverview2026 out/frame.png",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.230",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.230"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "typescript": "5.6.3"
+  }
+}
