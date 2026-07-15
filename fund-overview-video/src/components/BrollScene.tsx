@@ -17,6 +17,8 @@ import {COLORS, FONT_FAMILY} from '../config/theme';
  * footage candidates; if none are present in public/, a branded navy
  * placeholder (derrick silhouette) renders instead of failing.
  */
+export type PlaceholderStyle = 'energy' | 'skyline';
+
 export const BrollScene: React.FC<{
   /** Footage candidates under public/, in order of preference. */
   src: string | string[];
@@ -26,6 +28,8 @@ export const BrollScene: React.FC<{
   zoomFrom?: number;
   zoomTo?: number;
   overlayOpacity?: number;
+  /** Silhouette drawn when no footage is supplied. */
+  placeholder?: PlaceholderStyle;
   children?: React.ReactNode;
 }> = ({
   src,
@@ -34,6 +38,7 @@ export const BrollScene: React.FC<{
   zoomFrom = 1.0,
   zoomTo = 1.08,
   overlayOpacity = 0.62,
+  placeholder = 'energy',
   children,
 }) => {
   const frame = useCurrentFrame();
@@ -59,7 +64,7 @@ export const BrollScene: React.FC<{
           />
         </AbsoluteFill>
       ) : resolved === false ? (
-        <PlaceholderFootage src={candidates[0]} zoom={zoom} />
+        <PlaceholderFootage src={candidates[0]} zoom={zoom} style={placeholder} />
       ) : null}
 
       {/* Navy wash + bottom vignette for text legibility */}
@@ -78,12 +83,14 @@ export const BrollScene: React.FC<{
 
 /**
  * Branded stand-in shown when footage is missing: slow-zooming navy field
- * with a faint derrick silhouette and a discreet note naming the file to add.
+ * with a faint sector-appropriate silhouette and a discreet note naming the
+ * file to add.
  */
-const PlaceholderFootage: React.FC<{src: string; zoom: number}> = ({
-  src,
-  zoom,
-}) => {
+const PlaceholderFootage: React.FC<{
+  src: string;
+  zoom: number;
+  style: PlaceholderStyle;
+}> = ({src, zoom, style}) => {
   const frame = useCurrentFrame();
   const drift = interpolate(frame, [0, 600], [0, -40]);
 
@@ -109,32 +116,66 @@ const PlaceholderFootage: React.FC<{src: string; zoom: number}> = ({
             stroke="rgba(255,255,255,0.10)"
             strokeWidth="2"
           />
-          {/* Derrick silhouette */}
-          <g
-            stroke="rgba(255,255,255,0.14)"
-            strokeWidth="6"
-            fill="none"
-            strokeLinecap="round"
-          >
-            <path d="M 1210 880 L 1310 300 L 1410 880" />
-            <path d="M 1233 740 L 1387 740" />
-            <path d="M 1250 640 L 1370 640" />
-            <path d="M 1265 540 L 1355 540" />
-            <path d="M 1278 440 L 1342 440" />
-            <path d="M 1233 740 L 1370 640 M 1250 640 L 1355 540 M 1265 540 L 1342 440" />
-            <path d="M 1290 370 L 1330 370 L 1330 300 L 1290 300 Z" />
-          </g>
-          {/* Pumpjack silhouette */}
-          <g
-            stroke="rgba(255,255,255,0.10)"
-            strokeWidth="6"
-            fill="none"
-            strokeLinecap="round"
-          >
-            <path d="M 480 880 L 540 700 L 600 880" />
-            <path d="M 420 660 L 660 690" />
-            <circle cx="672" cy="694" r="26" />
-          </g>
+          {style === 'energy' ? (
+            <>
+              {/* Derrick silhouette */}
+              <g
+                stroke="rgba(255,255,255,0.14)"
+                strokeWidth="6"
+                fill="none"
+                strokeLinecap="round"
+              >
+                <path d="M 1210 880 L 1310 300 L 1410 880" />
+                <path d="M 1233 740 L 1387 740" />
+                <path d="M 1250 640 L 1370 640" />
+                <path d="M 1265 540 L 1355 540" />
+                <path d="M 1278 440 L 1342 440" />
+                <path d="M 1233 740 L 1370 640 M 1250 640 L 1355 540 M 1265 540 L 1342 440" />
+                <path d="M 1290 370 L 1330 370 L 1330 300 L 1290 300 Z" />
+              </g>
+              {/* Pumpjack silhouette */}
+              <g
+                stroke="rgba(255,255,255,0.10)"
+                strokeWidth="6"
+                fill="none"
+                strokeLinecap="round"
+              >
+                <path d="M 480 880 L 540 700 L 600 880" />
+                <path d="M 420 660 L 660 690" />
+                <circle cx="672" cy="694" r="26" />
+              </g>
+            </>
+          ) : (
+            <>
+              {/* City skyline silhouette */}
+              <g stroke="rgba(255,255,255,0.13)" strokeWidth="5" fill="none">
+                <path d="M 360 880 L 360 560 L 500 560 L 500 880" />
+                <path d="M 395 620 L 465 620 M 395 680 L 465 680 M 395 740 L 465 740 M 395 800 L 465 800" />
+                <path d="M 560 880 L 560 400 L 690 400 L 690 880" />
+                <path d="M 595 460 L 655 460 M 595 530 L 655 530 M 595 600 L 655 600 M 595 670 L 655 670 M 595 740 L 655 740 M 595 810 L 655 810" />
+                <path d="M 750 880 L 750 300 L 780 260 L 810 300 L 810 880" />
+                <path d="M 900 880 L 900 480 L 1060 480 L 1060 880" />
+                <path d="M 940 540 L 1020 540 M 940 610 L 1020 610 M 940 680 L 1020 680 M 940 750 L 1020 750 M 940 815 L 1020 815" />
+                <path d="M 1120 880 L 1120 350 L 1250 350 L 1250 880" />
+                <path d="M 1155 410 L 1215 410 M 1155 480 L 1215 480 M 1155 550 L 1215 550 M 1155 620 L 1215 620 M 1155 690 L 1215 690 M 1155 760 L 1215 760" />
+                <path d="M 1320 880 L 1320 620 L 1470 620 L 1470 880" />
+                <path d="M 1355 680 L 1435 680 M 1355 740 L 1435 740 M 1355 800 L 1435 800" />
+              </g>
+              {/* Construction crane */}
+              <g
+                stroke="rgba(255,255,255,0.10)"
+                strokeWidth="5"
+                fill="none"
+                strokeLinecap="round"
+              >
+                <path d="M 1560 880 L 1560 380" />
+                <path d="M 1420 420 L 1720 420" />
+                <path d="M 1560 380 L 1620 420" />
+                <path d="M 1680 420 L 1680 520" />
+                <path d="M 1660 520 L 1700 520 L 1700 555 L 1660 555 Z" />
+              </g>
+            </>
+          )}
         </svg>
       </AbsoluteFill>
       <div

@@ -8,6 +8,7 @@ graphics. Two compositions are registered:
 | --- | --- | --- |
 | `FundOverview2026` | 2026 Drilling Fund | `public/assets/audio/narration.mp3` |
 | `PCFIIIOverview` | Private Capital Fund III | `public/assets/audio/pcf3-narration.mp3` |
+| `QOZIVOverview` | Qualified Opportunity Zone IV | `public/assets/audio/qoz4-narration.mp3` |
 
 ## Quick start
 
@@ -21,6 +22,7 @@ npm run studio
 # Render to out/
 npm run render                                            # FundOverview2026
 npx remotion render PCFIIIOverview out/PCFIIIOverview.mp4  # PCF III
+npx remotion render QOZIVOverview out/QOZIVOverview.mp4    # QOZ IV
 
 # In a headless/CI environment with a system Chromium:
 REMOTION_BROWSER_EXECUTABLE=/path/to/chromium npm run render
@@ -39,7 +41,21 @@ REMOTION_BROWSER_EXECUTABLE=/path/to/chromium npm run render
 | `src/pcf3/captions.ts` | Caption cues for `PCFIIIOverview`. |
 | `src/pcf3/components/` | PCF III components: `IncomeGrowthSplit`, `AssetCategoryCard`, `USAssetMap`, `DripCompoundingAnimation`, `AccreditedInvestorScene`. |
 | `src/pcf3/scenes/` | The seven scenes of the PCF III timeline. |
+| `src/qoz4/timing.ts` | **Central timing configuration** for `QOZIVOverview`. |
+| `src/qoz4/captions.ts` | Caption cues for `QOZIVOverview`. |
+| `src/qoz4/components/` | QOZ IV components: `CapitalGainFlow`, `Calendar180`, `TaxBenefitCards`, `OpportunityZoneMap`, `DevelopmentTimeline`, `SponsorStrengths`. |
+| `src/qoz4/scenes/` | The seven scenes of the QOZ IV timeline. |
 | `public/assets/` | All media (logo, b-roll, audio). |
+
+### QOZ IV b-roll slots
+
+The QOZ IV composition looks for real-estate footage under
+`public/assets/qoz-broll/`: `skyline-drone.mp4`, `skyline.mp4`,
+`construction.mp4`, `development.mp4`, `sunset.mp4`. Each slot falls back
+down its candidate list; when nothing is supplied a **skyline** placeholder
+(city silhouette, not the energy derrick) renders instead. The scene-4
+qualifier ("Benefits depend on current law…") is passed to
+`DisclaimerFooter` in `src/qoz4/scenes/Qoz4Scene4TaxBenefits.tsx`.
 
 ### PCF III b-roll slots
 
