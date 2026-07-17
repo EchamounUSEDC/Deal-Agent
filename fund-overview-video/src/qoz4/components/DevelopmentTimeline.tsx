@@ -10,8 +10,8 @@ import {COLORS, FONT_FAMILY} from '../../config/theme';
 
 /**
  * Year 0 → Year 10 horizontal timeline. A red sweep crosses the decade
- * while milestone icons transition from construction (crane) to a
- * stabilized income-producing asset (completed building).
+ * while milestone icons transition from development (drilling derrick) to
+ * a stabilized income-producing asset (pumpjack on production).
  */
 export const DevelopmentTimeline: React.FC<{
   width?: number;
@@ -126,7 +126,7 @@ export const DevelopmentTimeline: React.FC<{
         );
         return (
           <g key={yr} opacity={iconIn} transform={`translate(${x - 30}, ${y - 118})`}>
-            {/* Construction crane (fades out) */}
+            {/* Drilling derrick (fades out) */}
             <g
               opacity={1 - doneOpacity}
               stroke={COLORS.white50}
@@ -134,29 +134,25 @@ export const DevelopmentTimeline: React.FC<{
               fill="none"
               strokeLinecap="round"
             >
-              <path d="M 14 88 L 14 22" />
-              <path d="M 0 30 L 44 30" />
-              <path d="M 14 22 L 24 30" />
-              <path d="M 38 30 L 38 48" />
-              <rect x={31} y={48} width={14} height={12} />
-              <path d="M 4 88 L 24 88" />
+              <path d="M 16 88 L 30 24 L 44 88" />
+              <line x1={21} y1={66} x2={39} y2={66} />
+              <line x1={24} y1={48} x2={36} y2={48} />
+              <rect x={25} y={14} width={10} height={10} />
+              <path d="M 6 88 L 54 88" />
             </g>
-            {/* Completed building (fades in) */}
+            {/* Producing pumpjack (fades in) */}
             <g
               opacity={doneOpacity}
               stroke={passed ? COLORS.white : COLORS.white50}
               strokeWidth={3}
               fill="none"
-              strokeLinejoin="round"
+              strokeLinecap="round"
             >
-              <rect x={38} y={34} width={22} height={54} />
-              <rect x={20} y={54} width={18} height={34} />
-              <line x1={44} y1={46} x2={54} y2={46} />
-              <line x1={44} y1={58} x2={54} y2={58} />
-              <line x1={44} y1={70} x2={54} y2={70} />
-              <line x1={26} y1={64} x2={32} y2={64} />
-              <line x1={26} y1={76} x2={32} y2={76} />
-              <line x1={14} y1={88} x2={66} y2={88} />
+              <path d="M 18 88 L 32 56 L 46 88" />
+              <line x1={8} y1={50} x2={52} y2={55} />
+              <circle cx={58} cy={56} r={7} />
+              <line x1={8} y1={50} x2={8} y2={62} />
+              <path d="M 6 88 L 58 88" />
             </g>
           </g>
         );

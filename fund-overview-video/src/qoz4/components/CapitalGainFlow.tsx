@@ -8,9 +8,9 @@ import {
 import {COLORS, FONT_FAMILY} from '../../config/theme';
 
 /**
- * Capital gains flowing into real estate: a "REALIZED CAPITAL GAINS" node
- * on the left streams along a red path into a development that constructs
- * itself floor by floor on the right.
+ * Capital gains flowing into oil & gas development: a "REALIZED CAPITAL
+ * GAINS" node on the left streams along a red path into a drilling derrick
+ * that assembles section by section, joined by a producing pumpjack.
  */
 export const CapitalGainFlow: React.FC<{
   width?: number;
@@ -36,10 +36,17 @@ export const CapitalGainFlow: React.FC<{
   });
   const dashOffset = -((frame - delay) * 1.8);
 
-  // Building floors rise sequentially as capital "arrives".
-  const FLOORS = 6;
-  const floorW = 240;
-  const floorH = 44;
+  // Derrick sections assemble bottom-to-top as capital "arrives".
+  const LEVELS = 5;
+  const derrickX = bldgX + 170; // derrick center
+  const baseHalfW = 92;
+  const topHalfW = 20;
+  const derrickH = 275;
+  const pumpX = bldgX - 10; // pumpjack center
+  const pumpIn = interpolate(frame, [delay + 92, delay + 114], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
 
   return (
     <svg width={width} height={height}>
@@ -77,13 +84,13 @@ export const CapitalGainFlow: React.FC<{
       {/* Flow path */}
       <g opacity={flowOpacity}>
         <path
-          d={`M ${gainX + 76} ${gainY} C ${gainX + 320} ${gainY}, ${bldgX - 300} ${bldgBaseY - 90}, ${bldgX - 46} ${bldgBaseY - 90}`}
+          d={`M ${gainX + 76} ${gainY} C ${gainX + 320} ${gainY}, ${bldgX - 360} ${bldgBaseY - 46}, ${bldgX - 140} ${bldgBaseY - 46}`}
           fill="none"
           stroke={COLORS.white30}
           strokeWidth={2}
         />
         <path
-          d={`M ${gainX + 76} ${gainY} C ${gainX + 320} ${gainY}, ${bldgX - 300} ${bldgBaseY - 90}, ${bldgX - 46} ${bldgBaseY - 90}`}
+          d={`M ${gainX + 76} ${gainY} C ${gainX + 320} ${gainY}, ${bldgX - 360} ${bldgBaseY - 46}, ${bldgX - 140} ${bldgBaseY - 46}`}
           fill="none"
           stroke={COLORS.redBright}
           strokeWidth={3}
@@ -91,58 +98,89 @@ export const CapitalGainFlow: React.FC<{
           strokeDashoffset={dashOffset}
         />
         <path
-          d={`M ${bldgX - 34} ${bldgBaseY - 90} l -16 -9 l 0 18 Z`}
+          d={`M ${bldgX - 128} ${bldgBaseY - 46} l -16 -9 l 0 18 Z`}
           fill={COLORS.redBright}
         />
       </g>
 
-      {/* Development rising floor by floor */}
-      {Array.from({length: FLOORS}, (_, i) => {
-        const floorDelay = delay + 26 + i * 12;
+      {/* Derrick assembling section by section */}
+      {Array.from({length: LEVELS}, (_, i) => {
+        const levelDelay = delay + 26 + i * 13;
         const rise = spring({
-          frame: frame - floorDelay,
+          frame: frame - levelDelay,
           fps,
           config: {damping: 200, stiffness: 130},
         });
-        const y = bldgBaseY - (i + 1) * floorH;
-        const isTop = i === FLOORS - 1;
+        const t0 = i / LEVELS;
+        const t1 = (i + 1) / LEVELS;
+        const y0 = bldgBaseY - t0 * derrickH;
+        const y1 = bldgBaseY - t1 * derrickH;
+        const w0 = baseHalfW - t0 * (baseHalfW - topHalfW);
+        const w1 = baseHalfW - t1 * (baseHalfW - topHalfW);
+        const isTop = i === LEVELS - 1;
+        const shift = (1 - rise) * 14;
         return (
-          <g key={i} opacity={rise}>
-            <rect
-              x={bldgX}
-              y={y + (1 - rise) * 16}
-              width={floorW}
-              height={floorH - 6}
-              fill={i % 2 === 0 ? COLORS.navySoft : 'rgba(10, 13, 82, 0.35)'}
-              stroke={isTop ? COLORS.redBright : COLORS.white30}
-              strokeWidth={isTop ? 2.5 : 2}
-            />
-            {/* Windows */}
-            {Array.from({length: 4}, (_, w) => (
-              <rect
-                key={w}
-                x={bldgX + 26 + w * 52}
-                y={y + 12 + (1 - rise) * 16}
-                width={26}
-                height={16}
-                fill="rgba(255,255,255,0.16)"
-              />
-            ))}
+          <g
+            key={i}
+            opacity={rise}
+            stroke={isTop ? COLORS.redBright : COLORS.white70}
+            strokeWidth={isTop ? 3.5 : 3}
+            fill="none"
+            strokeLinecap="round"
+            transform={`translate(0, ${shift})`}
+          >
+            <line x1={derrickX - w0} y1={y0} x2={derrickX - w1} y2={y1} />
+            <line x1={derrickX + w0} y1={y0} x2={derrickX + w1} y2={y1} />
+            <line x1={derrickX - w1} y1={y1} x2={derrickX + w1} y2={y1} />
+            <line x1={derrickX - w0} y1={y0} x2={derrickX + w1} y2={y1} />
           </g>
         );
       })}
-      {/* Ground line under the building */}
+      {/* Crown block */}
+      <rect
+        x={derrickX - 14}
+        y={bldgBaseY - derrickH - 28}
+        width={28}
+        height={26}
+        fill="none"
+        stroke={COLORS.redBright}
+        strokeWidth={3}
+        opacity={interpolate(frame, [delay + 88, delay + 106], [0, 1], {
+          extrapolateLeft: 'clamp',
+          extrapolateRight: 'clamp',
+        })}
+      />
+      {/* Producing pumpjack beside the derrick */}
+      <g
+        opacity={pumpIn}
+        stroke={COLORS.white70}
+        strokeWidth={3.5}
+        fill="none"
+        strokeLinecap="round"
+      >
+        <path
+          d={`M ${pumpX - 34} ${bldgBaseY} L ${pumpX} ${bldgBaseY - 74} L ${pumpX + 34} ${bldgBaseY}`}
+        />
+        <line
+          x1={pumpX - 58}
+          y1={bldgBaseY - 88}
+          x2={pumpX + 52}
+          y2={bldgBaseY - 76}
+        />
+        <circle cx={pumpX + 62} cy={bldgBaseY - 74} r={13} />
+      </g>
+      {/* Ground line under the site */}
       <line
-        x1={bldgX - 60}
+        x1={pumpX - 110}
         y1={bldgBaseY}
-        x2={bldgX + floorW + 60}
+        x2={derrickX + baseHalfW + 60}
         y2={bldgBaseY}
         stroke={COLORS.white30}
         strokeWidth={2}
         opacity={nodeIn}
       />
       <text
-        x={bldgX + floorW / 2}
+        x={(pumpX + derrickX) / 2}
         y={bldgBaseY + 40}
         textAnchor="middle"
         fontFamily={FONT_FAMILY}
@@ -152,7 +190,7 @@ export const CapitalGainFlow: React.FC<{
         fill={COLORS.white70}
         opacity={flowOpacity}
       >
-        REAL ESTATE DEVELOPMENTS
+        OIL AND GAS DEVELOPMENT
       </text>
     </svg>
   );

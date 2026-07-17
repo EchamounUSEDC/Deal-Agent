@@ -9,23 +9,22 @@ import {TITLE_SAFE_MARGIN} from '../../config/timing';
 const {durationInFrames} = qoz4SceneWindow('scene5Sponsor');
 
 /**
- * 0:36–0:48 — Development footage with institutional callouts, balanced by
- * a quiet Opportunity Zone community map.
+ * 0:36–0:48 — Energy-development footage with institutional callouts,
+ * balanced by a quiet Opportunity Zone community map.
  */
 export const Qoz4Scene5Sponsor: React.FC = () => {
   return (
     <BrollScene
       src={[
-        'assets/qoz-broll/construction.mp4',
-        'assets/qoz-broll/development.mp4',
-        'assets/qoz-broll/skyline-drone.mp4',
+        'assets/qoz-broll/operations.mp4',
+        'assets/qoz-broll/production.mp4',
+        'assets/rig-broll.mp4',
       ]}
       durationInFrames={durationInFrames}
       startFromSeconds={3}
       zoomFrom={1.0}
       zoomTo={1.06}
       overlayOpacity={0.82}
-      placeholder="skyline"
     >
       <AbsoluteFill
         style={{

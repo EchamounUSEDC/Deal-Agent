@@ -8,13 +8,13 @@
 import {FPS} from '../config/timing';
 
 export const QOZ4_SCENE_SECONDS = {
-  scene1Title: 5, //           Drone skyline + logo + title
-  scene2GainFlow: 6.97, //     Capital gains → developments
-  scene3Window180: 9, //       180-day window + eligible gains
+  scene1Title: 5, //           Drone energy footage + logo + title
+  scene2GainFlow: 7.61, //     Capital gains → oil & gas development
+  scene3Window180: 8.99, //    180-day window + eligible gains
   scene4TaxBenefits: 10.8, //  Three tax-benefit cards
-  scene5Sponsor: 10.45, //     Sponsor strengths callouts
-  scene6Horizon: 10.92, //     Year 0 → 10 development timeline
-  scene7EndCard: 6.97, //      Sunset footage + end card
+  scene5Sponsor: 10.41, //     Sponsor strengths callouts
+  scene6Horizon: 10.93, //     Year 0 → 10 development timeline
+  scene7EndCard: 6.7, //       Sunset footage + end card
 } as const;
 
 export type Qoz4SceneKey = keyof typeof QOZ4_SCENE_SECONDS;

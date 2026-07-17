@@ -8,8 +8,7 @@ import {qoz4SceneWindow} from '../timing';
 const {durationInFrames} = qoz4SceneWindow('scene1Title');
 
 /**
- * 0:00–0:05 — Drone footage toward a modern skyline and completed
- * developments; logo and title fade in.
+ * 0:00–0:05 — Aerial energy-operations footage; logo and title fade in.
  */
 export const Qoz4Scene1Title: React.FC = () => {
   const frame = useCurrentFrame();
@@ -20,12 +19,11 @@ export const Qoz4Scene1Title: React.FC = () => {
 
   return (
     <BrollScene
-      src={['assets/qoz-broll/skyline-drone.mp4', 'assets/qoz-broll/skyline.mp4']}
+      src={['assets/qoz-broll/aerial.mp4', 'assets/qoz-broll/operations.mp4', 'assets/rig-broll.mp4']}
       durationInFrames={durationInFrames}
       zoomFrom={1.0}
       zoomTo={1.08}
       overlayOpacity={0.6}
-      placeholder="skyline"
     >
       <AbsoluteFill
         style={{
@@ -40,7 +38,7 @@ export const Qoz4Scene1Title: React.FC = () => {
         </div>
         <BrandedTitle
           title="QUALIFIED OPPORTUNITY ZONE IV"
-          subtitle="Institutional Real Estate Investment"
+          subtitle="Institutional Energy Investment"
           delay={14}
           titleSize={88}
         />

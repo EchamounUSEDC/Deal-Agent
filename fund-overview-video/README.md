@@ -68,13 +68,13 @@ annually" figure) are plain props/text in
 
 ### QOZ IV b-roll slots
 
-The QOZ IV composition looks for real-estate footage under
-`public/assets/qoz-broll/`: `skyline-drone.mp4`, `skyline.mp4`,
-`construction.mp4`, `development.mp4`, `sunset.mp4`. Each slot falls back
-down its candidate list; when nothing is supplied a **skyline** placeholder
-(city silhouette, not the energy derrick) renders instead. The scene-4
-qualifier ("Benefits depend on current law…") is passed to
-`DisclaimerFooter` in `src/qoz4/scenes/Qoz4Scene4TaxBenefits.tsx`.
+The QOZ IV composition is an **oil & gas** Opportunity Zone fund and looks
+for energy footage under `public/assets/qoz-broll/`: `aerial.mp4`,
+`operations.mp4`, `production.mp4`, `sunset.mp4`. Each slot falls back down
+its candidate list (ending at `assets/rig-broll.mp4`) and renders the
+branded energy placeholder when nothing is supplied. The scene-4 qualifier
+("Benefits depend on current law…") is passed to `DisclaimerFooter` in
+`src/qoz4/scenes/Qoz4Scene4TaxBenefits.tsx`.
 
 ### PCF III b-roll slots
 
