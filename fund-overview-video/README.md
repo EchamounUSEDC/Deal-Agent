@@ -9,6 +9,7 @@ graphics. Two compositions are registered:
 | `FundOverview2026` | 2026 Drilling Fund | `public/assets/audio/narration.mp3` |
 | `PCFIIIOverview` | Private Capital Fund III | `public/assets/audio/pcf3-narration.mp3` |
 | `QOZIVOverview` | Qualified Opportunity Zone IV | `public/assets/audio/qoz4-narration.mp3` |
+| `USEDCOoperationsOverview` | Operations & Partnership Overview | `public/assets/audio/ops-narration.mp3` |
 
 ## Quick start
 
@@ -23,6 +24,7 @@ npm run studio
 npm run render                                            # FundOverview2026
 npx remotion render PCFIIIOverview out/PCFIIIOverview.mp4  # PCF III
 npx remotion render QOZIVOverview out/QOZIVOverview.mp4    # QOZ IV
+npx remotion render USEDCOoperationsOverview out/USEDCOoperationsOverview.mp4  # Operations
 
 # In a headless/CI environment with a system Chromium:
 REMOTION_BROWSER_EXECUTABLE=/path/to/chromium npm run render
@@ -45,7 +47,24 @@ REMOTION_BROWSER_EXECUTABLE=/path/to/chromium npm run render
 | `src/qoz4/captions.ts` | Caption cues for `QOZIVOverview`. |
 | `src/qoz4/components/` | QOZ IV components: `CapitalGainFlow`, `Calendar180`, `TaxBenefitCards`, `OpportunityZoneMap`, `DevelopmentTimeline`, `SponsorStrengths`. |
 | `src/qoz4/scenes/` | The seven scenes of the QOZ IV timeline. |
-| `public/assets/` | All media (logo, b-roll, audio). |
+| `src/ops/timing.ts` | **Central timing configuration** for `USEDCOoperationsOverview`. |
+| `src/ops/captions.ts` | Caption cues for `USEDCOoperationsOverview`. |
+| `src/ops/components/` | Operations components: `CapabilitySequence`, `PartnershipDataGraphic`, `BasinMapAnimation`, `PartnerBenefitCard`, `CapitalDeploymentGraphic`. |
+| `src/ops/scenes/` | The seven scenes of the Operations timeline. |
+| `public/assets/` | All media (logo, basin map, b-roll, audio). |
+
+### Operations overview asset slots
+
+B-roll lives under `public/assets/operations-broll/`: `rig.mp4`,
+`producing.mp4`, `pipeline.mp4`, `aerial-permian.mp4`,
+`technical-team.mp4`, `control-room.mp4`, `completion.mp4`, `hero.mp4` —
+each slot falls back down its candidate list to `assets/rig-broll.mp4`,
+then to the branded placeholder. The basin scene uses the supplied
+`public/assets/usedc-basin-map.png` when present (shown with a slow zoom
+and navy wash under the red basin callouts) and falls back to the shared
+SVG map. On-screen statistics (project sizes, the "more than $1 billion
+annually" figure) are plain props/text in
+`src/ops/components/CapitalDeploymentGraphic.tsx` — edit them there.
 
 ### QOZ IV b-roll slots
 
