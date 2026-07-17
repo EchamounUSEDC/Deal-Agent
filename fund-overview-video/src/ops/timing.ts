@@ -8,13 +8,13 @@
 import {FPS} from '../config/timing';
 
 export const OPS_SCENE_SECONDS = {
-  scene1Title: 8.34, //       Montage + logo + three descriptors
-  scene2Capabilities: 10.46, //Full-cycle expertise sequence
-  scene3Partnership: 11.08, // Operated platform + partner data graphic
-  scene4Basins: 10.62, //      Basin map with Permian focus
-  scene5Benefits: 9.05, //     Four partner-benefit cards
-  scene6Capital: 6.27, //      Capital deployment graphic
-  scene7EndCard: 5.3, //       Hero footage + end card
+  scene1Title: 10.22, //       Montage + logo + three descriptors
+  scene2Capabilities: 12.73, //Full-cycle expertise sequence
+  scene3Partnership: 13.7, //  Operated platform + partner data graphic
+  scene4Basins: 13.06, //      Basin map with Permian focus
+  scene5Benefits: 10.89, //    Four partner-benefit cards
+  scene6Capital: 7.71, //      Capital deployment graphic
+  scene7EndCard: 6.22, //      Hero footage + end card
 } as const;
 
 export type OpsSceneKey = keyof typeof OPS_SCENE_SECONDS;
