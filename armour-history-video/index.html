@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>From Cowtown to a New Era of Energy — U.S. Energy at the Armour Building</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app">
+    <!-- 16:9 stage -->
+    <div id="stage-wrap">
+      <div id="stage">
+        <!-- Primary render surface (1920x1080 internal resolution) -->
+        <canvas id="paper" width="1920" height="1080"></canvas>
+
+        <!-- Hidden SVG used only to measure path lengths / sample points -->
+        <svg id="measurer" xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true">
+          <path id="measure-path" d="M0 0" />
+        </svg>
+
+        <!-- Loading screen -->
+        <div id="loading" class="overlay">
+          <div class="loading-card">
+            <div class="loading-rule"></div>
+            <h1>From Cowtown to a<br />New Era of Energy</h1>
+            <p class="loading-sub">
+              The story of the Fort Worth Stockyards, the Armour Building,<br />
+              and the new home of U.S. Energy Development Corporation
+            </p>
+            <p id="loading-status">Preparing the drawing board…</p>
+            <button id="begin-btn" disabled>Begin</button>
+            <p class="loading-hint">Sound on — narration &amp; music begin with playback.</p>
+          </div>
+        </div>
+
+        <!-- Export indicator -->
+        <div id="rec-indicator" class="hidden"><span class="rec-dot"></span> RECORDING — let the film play to the end</div>
+      </div>
+
+      <!-- Control bar -->
+      <div id="controls" aria-label="Playback controls">
+        <button id="play-btn" title="Play / Pause (Space)">▶</button>
+        <button id="restart-btn" title="Restart">⟲</button>
+        <div id="progress" title="Seek">
+          <div id="progress-fill"></div>
+          <div id="progress-ticks"></div>
+        </div>
+        <div id="scene-label">—</div>
+        <div id="time-label">0:00 / 0:00</div>
+        <button id="mute-btn" title="Mute / Unmute (M)">🔊</button>
+        <button id="export-btn" title="Export as WebM video">Export</button>
+        <button id="fs-btn" title="Full screen (F)">⛶</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="scenes.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
